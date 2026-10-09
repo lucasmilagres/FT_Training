@@ -13,6 +13,26 @@ const SLOTS = [6, 7, 8, 9, 16, 17, 18, 19];
 const DAYS = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 const TRAINING = { 1: 'FT Hyrox', 2: 'FT Power · Inferiores', 3: 'FT Hyrox', 4: 'FT Power · Superiores', 5: 'FT Hyrox' };
 
+/* ---------- Vídeos sob demanda ----------
+   Só baixa quando a seção está chegando perto, só toca quando está na tela
+   e respeita o modo "economia de dados" do celular (mostra só a capa). */
+const conn = navigator.connection || {};
+const saveData = !!conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '');
+function lazyVideo(video, section) {
+  if (!video || saveData) return;
+  let near = false, visible = false;
+  const start = () => {
+    if (!video.src) { video.src = video.dataset.src; video.preload = 'auto'; }
+    if (visible && !document.hidden) video.play().catch(() => {});
+  };
+  new IntersectionObserver(([en]) => { near = en.isIntersecting; if (near) start(); }, { rootMargin: '100% 0px' }).observe(section);
+  new IntersectionObserver(([en]) => {
+    visible = en.isIntersecting;
+    if (visible && near) start(); else video.pause();
+  }, { threshold: 0.05 }).observe(section);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); else if (visible) start(); });
+}
+
 /* ---------- WhatsApp ---------- */
 const wpp = (msg) => `https://wa.me/${FT.whatsapp}?text=${encodeURIComponent(msg)}`;
 $$('.js-wpp').forEach((a) => { a.href = wpp(a.dataset.msg || 'Olá! Vim pelo site da FT Training.'); });
@@ -124,11 +144,12 @@ function initDeck() {
     const el = document.createElement('div');
     el.className = 'card';
     el.innerHTML = `
-      <img src="${r.poster}" alt="" draggable="false">
+      <img src="${r.poster}" alt="" draggable="false" loading="lazy" decoding="async">
       ${r.video ? '<video muted playsinline loop preload="none"></video>' : ''}
+      <div class="card__shade"></div>
       <div class="card__progress"><span></span></div>
       <div class="card__top">
-        <span class="card__user"><img src="assets/brand/ft-profile.jpg" alt="" draggable="false">ft.training_</span>
+        <span class="card__user"><img src="assets/brand/ft-profile.jpg" alt="" draggable="false" loading="lazy">ft.training_</span>
         <span class="card__num">${String(idx + 1).padStart(2, '0')}</span>
       </div>
       <div class="card__play"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></div>
@@ -165,11 +186,15 @@ function initDeck() {
       const c = cards[ci];
       const props = {
         x: pos * st, y: pos * -10, rotation: pos * (st > 20 ? 5 : 3), scale: 1 - pos * 0.06,
-        opacity: pos > 3 ? 0 : 1, filter: `brightness(${1 - Math.min(pos, 4) * 0.2})`,
-        zIndex: n - pos
+        opacity: pos > 3 ? 0 : 1, zIndex: n - pos
       };
-      if (instant || !gsap) gsap ? gsap.set(c.el, props) : Object.assign(c.el.style, { zIndex: n - pos });
-      else gsap.to(c.el, { ...props, duration: 0.7, ease: 'power3.out', overwrite: 'auto' });
+      const shade = $('.card__shade', c.el);
+      const dim = Math.min(pos, 4) * 0.2;
+      if (instant) { gsap.set(c.el, props); gsap.set(shade, { opacity: dim }); }
+      else {
+        gsap.to(c.el, { ...props, duration: 0.7, ease: 'power3.out', overwrite: 'auto' });
+        gsap.to(shade, { opacity: dim, duration: 0.7, overwrite: 'auto' });
+      }
     });
     const t = top();
     $('.js-deck-i').textContent = String(order[0] + 1).padStart(2, '0');
@@ -191,7 +216,7 @@ function initDeck() {
     });
   }
 
-  const buzz = () => { if (navigator.vibrate) navigator.vibrate(12); };
+  const buzz = () => { try { if (navigator.userActivation?.hasBeenActive && navigator.vibrate) navigator.vibrate(12); } catch (err) {} };
   function go(dir) {
     if (busy) return;
     busy = true;
@@ -220,7 +245,7 @@ function initDeck() {
   deck.addEventListener('pointerdown', (e) => {
     const c = top();
     if (!c.el.contains(e.target) || busy) return;
-    drag = { c, x0: e.clientX, y0: e.clientY, dx: 0, id: e.pointerId, axis: null };
+    drag = { c, x0: e.clientX, y0: e.clientY, dx: 0, id: e.pointerId, axis: null, t0: performance.now() };
   });
   window.addEventListener('pointermove', (e) => {
     if (!drag || e.pointerId !== drag.id) return;
@@ -228,15 +253,18 @@ function initDeck() {
     const dy = e.clientY - drag.y0;
     if (!drag.axis && (Math.abs(drag.dx) > 6 || Math.abs(dy) > 6)) {
       drag.axis = Math.abs(drag.dx) > Math.abs(dy) ? 'x' : 'y';
-      if (drag.axis === 'x') drag.c.el.setPointerCapture?.(e.pointerId);
+      if (drag.axis === 'x') { try { drag.c.el.setPointerCapture(e.pointerId); } catch (err) { /* sem captura, segue normal */ } }
     }
     if (drag.axis === 'x') gsap.set(drag.c.el, { x: drag.dx, rotation: drag.dx * 0.05 });
   });
   const end = (e) => {
     if (!drag || e.pointerId !== drag.id) return;
-    const { c, dx, axis } = drag;
+    const { c, dx, axis, t0 } = drag;
     drag = null;
-    if (axis === 'x' && Math.abs(dx) > 90) {
+    // passa a carta se arrastou o suficiente ou deu um "peteleco" rápido
+    const flick = Math.abs(dx) / Math.max(1, performance.now() - t0) > 0.5;
+    const limit = window.innerWidth < 760 ? 60 : 90;
+    if (axis === 'x' && (Math.abs(dx) > limit || (flick && Math.abs(dx) > 24))) {
       busy = true;
       buzz();
       gsap.to(c.el, {
@@ -281,14 +309,15 @@ function initDeck() {
 
   $('.js-deck-n').textContent = String(n).padStart(2, '0');
 
-  if (gsap) gsap.set(cards.map((c) => c.el), { opacity: 0, y: 80, rotation: 0, x: 0 });
+  // as cartas já nascem visíveis; a entrada animada é só um bônus
   layout(true);
-  if (gsap) {
-    gsap.set(cards.map((c) => c.el), { opacity: 0, y: 120 });
-    ScrollTrigger.create({
-      trigger: deck, start: 'top 80%', once: true,
-      onEnter() { order.forEach((ci, pos) => gsap.delayedCall(pos * 0.08, () => layout())); }
-    });
+  if (!reduced) {
+    const io = new IntersectionObserver(([en]) => {
+      if (!en.isIntersecting) return;
+      io.disconnect();
+      gsap.from(cards.map((c) => c.el), { y: 90, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.07 });
+    }, { threshold: 0.15 });
+    io.observe(deck);
   }
 
   new IntersectionObserver(([en]) => { deckVisible = en.isIntersecting; sync(); }, { threshold: 0.35 }).observe(deck);
@@ -315,6 +344,9 @@ function initTapes() {
     tape.addEventListener('pointerleave', () => { tape._hover = false; });
     tw._tape = tape;
   });
+
+  // fora da tela as fitas param de animar
+  new IntersectionObserver(([en]) => tweens.forEach((t) => t.paused(!en.isIntersecting))).observe($('.tapes'));
 
   let boost = 0;
   ScrollTrigger.create({
@@ -363,10 +395,7 @@ function initScroll() {
       .fromTo('.showreel__overlay', { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.35 }, 0.7)
       .to({}, { duration: 0.25 });
   }
-  new IntersectionObserver(([en]) => {
-    if (en.isIntersecting) { srVideo.preload = 'auto'; srVideo.play().catch(() => {}); }
-    else srVideo.pause();
-  }, { threshold: 0.05 }).observe(showreel);
+  lazyVideo(srVideo, showreel);
 
   // modalidades: scroll horizontal no desktop
   if (!reduced) mm.add('(min-width: 761px)', () => {
@@ -594,6 +623,7 @@ async function boot() {
     $('.loader').remove();
     initDeckFallback();
     loadFeed();
+    startHeroVideo();
     return;
   }
   try { await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1500))]); } catch (e) {}
@@ -617,6 +647,14 @@ async function boot() {
 
   if (document.readyState === 'complete') ScrollTrigger.refresh();
   else window.addEventListener('load', () => ScrollTrigger.refresh());
+  startHeroVideo();
+}
+
+// o vídeo do hero só começa depois que o resto da página carregou
+function startHeroVideo() {
+  const go = () => setTimeout(() => lazyVideo($('.hero__video'), $('.hero')), 300);
+  if (document.readyState === 'complete') go();
+  else window.addEventListener('load', go, { once: true });
 }
 
 function initDeckFallback() {

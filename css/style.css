@@ -581,3 +581,33 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
   .hero__sticker { display: none; }
   .nav__brand img { height: 36px; }
 }
+
+/* ---------- baralho: tamanho explícito (funciona em qualquer celular) ---------- */
+.card {
+  --cw: clamp(250px, 21vw, 320px);
+  width: var(--cw); height: calc(var(--cw) * 16 / 9); aspect-ratio: auto;
+  top: calc(50% - var(--cw) * 8 / 9); left: calc(50% - var(--cw) / 2 - 40px);
+  margin: 0; translate: none;
+}
+.card__shade { position: absolute; inset: 0; z-index: 1; background: #000; opacity: 0; pointer-events: none; }
+.card__top, .card__bottom, .card__progress { z-index: 3; }
+.card__play { top: calc(50% - 35px); left: calc(50% - 35px); translate: none; z-index: 3; }
+
+@media (max-width: 760px) {
+  .card { --cw: min(70vw, 290px); left: calc(50% - var(--cw) / 2 - 22px); }
+  .deck { height: calc(min(70vw, 290px) * 16 / 9 + 70px); margin-top: 28px; }
+  /* celular: título > cartas > controles */
+  .reels__grid { gap: 0; }
+  .reels__intro { display: contents; }
+  .deck { order: 1; }
+  .reels .deck-ctrl { order: 2; justify-content: center; margin-top: 64px; }
+  .reels .link-ig { order: 3; justify-self: center; }
+  .deck__hint { bottom: -34px; }
+}
+
+/* ---------- celular: sem efeitos caros de composição ---------- */
+@media (max-width: 760px), (hover: none) {
+  body::after { display: none; }
+  .nav.is-solid { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(10, 10, 10, .95); }
+  .hero__video { filter: none; }
+}

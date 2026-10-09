@@ -20,7 +20,7 @@ Abra http://localhost:5173
 - `assets/brand` — logo grafite FT (`ft-logo.png` em alta, `ft-logo-640.png` para uso geral), favicons e `ft-profile.jpg` (foto de perfil do Instagram, usada só onde o site imita o Instagram)
 
 ## Tarefas comuns
-- **Trocar um reel:** salve o novo `.mp4` e a capa `.jpg` em `assets/reels` e ajuste `code`/`tag` em `js/data.js`.
+- **Trocar um reel:** salve o novo `.mp4` e a capa `.webp` (540x960) em `assets/reels` e ajuste `code`/`tag` em `js/data.js`.
 - **Feed do Instagram ao vivo:** crie um feed gratuito em https://behold.so (conectar o Instagram da FT, formato JSON) e cole a URL em `beholdFeedUrl` no `js/data.js`. Sem isso, o site mostra o retrato salvo em `assets/feed`.
 - **Horários:** HTML da seção `#horarios` + array `SLOTS` no topo de `js/main.js`.
 - **WhatsApp:** campo `whatsapp` em `js/data.js`.
