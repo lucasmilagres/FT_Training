@@ -38,10 +38,10 @@
       <span class="nav__brand-text"><em>Training</em></span>
     </a>
     <nav class="nav__links" aria-label="Principal">
+      <a href="#reels">No box</a>
       <a href="#metodologia">Metodologia</a>
       <a href="#modalidades">Modalidades</a>
       <a href="#horarios">Horários</a>
-      <a href="#reels">No box</a>
       <a href="#instagram">Instagram</a>
     </nav>
     <a class="btn btn--yellow btn--sm nav__cta js-wpp" data-msg="Olá! Quero agendar uma aula experimental na FT Training." href="#" target="_blank" rel="noopener">
@@ -53,10 +53,10 @@
 
   <div class="menu" aria-hidden="true">
     <nav>
-      <a href="#metodologia"><small>01</small>Metodologia</a>
-      <a href="#modalidades"><small>02</small>Modalidades</a>
-      <a href="#horarios"><small>03</small>Horários</a>
-      <a href="#reels"><small>04</small>No box</a>
+      <a href="#reels"><small>01</small>No box</a>
+      <a href="#metodologia"><small>02</small>Metodologia</a>
+      <a href="#modalidades"><small>03</small>Modalidades</a>
+      <a href="#horarios"><small>04</small>Horários</a>
       <a href="#instagram"><small>05</small>Instagram</a>
     </nav>
     <a class="btn btn--yellow js-wpp" data-msg="Olá! Quero agendar uma aula experimental na FT Training." href="#" target="_blank" rel="noopener">Agendar aula experimental</a>
@@ -83,8 +83,8 @@
               <svg class="ico ico--fill" viewBox="0 0 24 24"><use href="#i-wpp"/></svg>
               Agendar aula experimental
             </a>
-            <a class="btn btn--ghost magnetic" href="#metodologia">
-              Conhecer a metodologia
+            <a class="btn btn--ghost magnetic" href="#reels">
+              Ver os treinos
               <svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
             </a>
           </div>
@@ -107,7 +107,7 @@
         <div><strong data-count="5">5</strong><span>dias de aula<br>por semana</span></div>
         <div><strong data-count="8">8</strong><span>horários<br>por dia</span></div>
         <div><strong data-count="4">4</strong><span>modalidades<br>integradas</span></div>
-        <a href="#metodologia" class="hero__scroll" aria-label="Rolar para a metodologia"><span>Role</span><i></i></a>
+        <a href="#reels" class="hero__scroll" aria-label="Rolar para os treinos"><span>Role</span><i></i></a>
       </div>
     </section>
 
@@ -163,12 +163,41 @@
       </div>
     </section>
 
-    <!-- ============ 01 METODOLOGIA ============ -->
+    <!-- ============ 01 REELS / BARALHO ============ -->
+    <section class="section reels" id="reels">
+      <div class="wrap reels__grid">
+        <div class="reels__intro">
+          <p class="sec-num reveal"><b>01</b> — No box</p>
+          <h2 class="sec-title reveal">Sinta o<br><span class="y">treino.</span></h2>
+          <p class="sec-lead reveal">Arraste as cartas para o lado e veja como é a rotina dentro do FT. Vídeos produzidos pela Endurance Vision.</p>
+
+          <div class="deck-ctrl reveal">
+            <button class="round js-deck-prev" aria-label="Vídeo anterior"><svg class="ico" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+            <span class="deck-ctrl__count mono"><b class="js-deck-i">01</b> / <span class="js-deck-n">06</span></span>
+            <button class="round js-deck-next" aria-label="Próximo vídeo"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+            <button class="round round--wide js-deck-sound" aria-pressed="false">
+              <svg class="ico ico-muted" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5ZM22 9l-6 6M16 9l6 6"/></svg>
+              <svg class="ico ico-sound" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5ZM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+              <span class="mono js-deck-sound-label">Som off</span>
+            </button>
+          </div>
+          <a class="link-ig reveal js-deck-link" href="https://www.instagram.com/ft.training_/" target="_blank" rel="noopener">
+            <svg class="ico" viewBox="0 0 24 24"><use href="#i-ig"/></svg> Abrir este reel no Instagram
+          </a>
+        </div>
+
+        <div class="deck" data-cursor="Arraste" aria-roledescription="carrossel" aria-label="Vídeos do Instagram da FT Training">
+          <div class="deck__hint mono"><svg class="ico" viewBox="0 0 24 24"><path d="M8 12h8M5 9l-3 3 3 3M19 9l3 3-3 3"/></svg> Arraste</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 02 METODOLOGIA ============ -->
     <section class="section method" id="metodologia">
       <div class="ghost-word" aria-hidden="true">Híbrido</div>
       <div class="wrap">
         <div class="sec-head">
-          <p class="sec-num reveal"><b>01</b> — Metodologia FT</p>
+          <p class="sec-num reveal"><b>02</b> — Metodologia FT</p>
           <h2 class="sec-title reveal">Uma semana.<br><span class="y">Treino completo.</span></h2>
           <p class="sec-lead reveal">A FT Training trabalha com treinamento híbrido: Hyrox, força, condicionamento e workouts organizados ao longo da semana para desenvolver força, resistência, corrida e performance.</p>
         </div>
@@ -221,12 +250,12 @@
       </div>
     </section>
 
-    <!-- ============ 02 MODALIDADES ============ -->
+    <!-- ============ 03 MODALIDADES ============ -->
     <section class="section mods" id="modalidades">
       <div class="mods__pin">
         <div class="mods__track">
           <div class="mods__head">
-            <p class="sec-num reveal"><b>02</b> — Modalidades</p>
+            <p class="sec-num reveal"><b>03</b> — Modalidades</p>
             <h2 class="sec-title reveal">Quatro frentes.<br><span class="y">Um atleta.</span></h2>
             <p class="sec-lead reveal">Cada modalidade conversa com a outra. O resultado é um corpo forte, resistente e pronto para qualquer prova.</p>
             <div class="mods__progress" aria-hidden="true"><span></span></div>
@@ -279,12 +308,12 @@
       </div>
     </section>
 
-    <!-- ============ 03 HORÁRIOS ============ -->
+    <!-- ============ 04 HORÁRIOS ============ -->
     <section class="section hours" id="horarios">
       <div class="ghost-word ghost-word--right" aria-hidden="true">Horários</div>
       <div class="wrap hours__grid">
         <div class="hours__intro">
-          <p class="sec-num reveal"><b>03</b> — Horários</p>
+          <p class="sec-num reveal"><b>04</b> — Horários</p>
           <h2 class="sec-title reveal">Escolha o<br><span class="y">seu horário.</span></h2>
           <p class="sec-lead reveal">Aulas de segunda a sexta. Você escolhe o horário que melhor se encaixa na sua rotina. Toque em um horário para agendar sua aula experimental.</p>
 
@@ -323,35 +352,6 @@
             </div>
           </div>
           <p class="hours__note mono">Segunda a sexta · Aulas de 1 hora</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 04 REELS / BARALHO ============ -->
-    <section class="section reels" id="reels">
-      <div class="wrap reels__grid">
-        <div class="reels__intro">
-          <p class="sec-num reveal"><b>04</b> — No box</p>
-          <h2 class="sec-title reveal">Sinta o<br><span class="y">treino.</span></h2>
-          <p class="sec-lead reveal">Arraste as cartas para o lado e veja como é a rotina dentro do FT. Vídeos produzidos pela Endurance Vision.</p>
-
-          <div class="deck-ctrl reveal">
-            <button class="round js-deck-prev" aria-label="Vídeo anterior"><svg class="ico" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
-            <span class="deck-ctrl__count mono"><b class="js-deck-i">01</b> / <span class="js-deck-n">06</span></span>
-            <button class="round js-deck-next" aria-label="Próximo vídeo"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-            <button class="round round--wide js-deck-sound" aria-pressed="false">
-              <svg class="ico ico-muted" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5ZM22 9l-6 6M16 9l6 6"/></svg>
-              <svg class="ico ico-sound" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5ZM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
-              <span class="mono js-deck-sound-label">Som off</span>
-            </button>
-          </div>
-          <a class="link-ig reveal js-deck-link" href="https://www.instagram.com/ft.training_/" target="_blank" rel="noopener">
-            <svg class="ico" viewBox="0 0 24 24"><use href="#i-ig"/></svg> Abrir este reel no Instagram
-          </a>
-        </div>
-
-        <div class="deck" data-cursor="Arraste" aria-roledescription="carrossel" aria-label="Vídeos do Instagram da FT Training">
-          <div class="deck__hint mono"><svg class="ico" viewBox="0 0 24 24"><path d="M8 12h8M5 9l-3 3 3 3M19 9l3 3-3 3"/></svg> Arraste</div>
         </div>
       </div>
     </section>

@@ -12,11 +12,11 @@ window.FT = {
      video: caminho do .mp4 em assets/reels (null = mostra a capa e abre no Instagram)
      Para trocar um vídeo, basta salvar o .mp4 com o mesmo nome. */
   reels: [
-    { code: 'DeNMxKdCwNS', video: 'assets/reels/reel-01.mp4', poster: 'assets/reels/reel-01.webp', tag: 'Intensidade' },
     { code: 'Ddq-kYfRLhA', video: 'assets/reels/reel-02.mp4', poster: 'assets/reels/reel-02.webp', tag: 'Foco' },
     { code: 'Dcei2gFxEdQ', video: 'assets/reels/reel-03.mp4', poster: 'assets/reels/reel-03.webp', tag: 'Condicionamento' },
     { code: 'DbtoUoMR-He', video: 'assets/reels/reel-04.mp4', poster: 'assets/reels/reel-04.webp', tag: 'Mentalidade' },
     { code: 'DbysC9nxrUn', video: 'assets/reels/reel-05.mp4', poster: 'assets/reels/reel-05.webp', tag: 'Competição' },
+    { code: 'DeNMxKdCwNS', video: 'assets/reels/reel-01.mp4', poster: 'assets/reels/reel-01.webp', tag: 'Intensidade' },
     { code: 'DeAcDbdxVnv', video: 'assets/reels/reel-06.mp4', poster: 'assets/reels/reel-06.webp', tag: 'Workout' }
   ],
 
