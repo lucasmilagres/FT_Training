@@ -18,14 +18,14 @@ const TRAINING = { 1: 'FT Hyrox', 2: 'FT Power · Inferiores', 3: 'FT Hyrox', 4:
    e respeita o modo "economia de dados" do celular (mostra só a capa). */
 const conn = navigator.connection || {};
 const saveData = !!conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '');
-function lazyVideo(video, section) {
+function lazyVideo(video, section, margin = '100% 0px') {
   if (!video || saveData) return;
   let near = false, visible = false;
   const start = () => {
     if (!video.src) { video.src = video.dataset.src; video.preload = 'auto'; }
     if (visible && !document.hidden) video.play().catch(() => {});
   };
-  new IntersectionObserver(([en]) => { near = en.isIntersecting; if (near) start(); }, { rootMargin: '100% 0px' }).observe(section);
+  new IntersectionObserver(([en]) => { near = en.isIntersecting; if (near) start(); }, { rootMargin: margin }).observe(section);
   new IntersectionObserver(([en]) => {
     visible = en.isIntersecting;
     if (visible && near) start(); else video.pause();
@@ -381,21 +381,19 @@ function initScroll() {
   const showreel = $('.showreel');
   const srVideo = $('.showreel__video');
   if (!reduced) {
-    const full = 'inset(0% 0% 0% 0% round 0px)';
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: showreel, start: 'top top', end: '+=160%', pin: true, scrub: 0.8, refreshPriority: 2,
         onUpdate: (s) => showreel.classList.toggle('is-full', s.progress > 0.62)
       }
     });
-    tl.to('.showreel__media', { clipPath: full, ease: 'power2.inOut', duration: 1 })
-      .fromTo('.showreel__video', { scale: 1.3 }, { scale: 1, ease: 'none', duration: 1 }, 0)
+    tl.to('.showreel__media', { scale: 1, ease: 'power2.inOut', duration: 1 })
       .to('.showreel__w--l', { xPercent: -70, opacity: 0, ease: 'power2.in', duration: 0.7 }, 0)
       .to('.showreel__w--r', { xPercent: 70, opacity: 0, ease: 'power2.in', duration: 0.7 }, 0)
       .fromTo('.showreel__overlay', { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.35 }, 0.7)
       .to({}, { duration: 0.25 });
   }
-  lazyVideo(srVideo, showreel);
+  lazyVideo(srVideo, showreel, '250% 0px');
 
   // modalidades: scroll horizontal no desktop
   if (!reduced) mm.add('(min-width: 761px)', () => {

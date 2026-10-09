@@ -531,9 +531,11 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
 .showreel { position: relative; height: 100vh; height: 100svh; overflow: hidden; background: var(--ink); }
 .showreel__stage { position: relative; height: 100%; }
 .showreel__words { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--gutter); pointer-events: none; }
-.showreel__w { font-family: var(--f-display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: clamp(64px, 10vw, 180px); line-height: .85; white-space: nowrap; }
+.showreel__w { font-family: var(--f-display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: clamp(56px, 8vw, 150px); line-height: .85; white-space: nowrap; }
+.showreel__w--r { text-align: right; }
 .showreel__w--r { color: var(--y); text-shadow: 0 0 40px rgba(255, 203, 60,.3); }
-.showreel__media { position: absolute; inset: 0; z-index: 2; clip-path: inset(24% 37% 24% 37% round 24px); will-change: clip-path; }
+/* o vídeo cresce só com transform (feito pela GPU, não trava o vídeo) */
+.showreel__media { position: absolute; inset: 0; z-index: 2; overflow: hidden; border-radius: 28px; transform: scale(.34); transform-origin: 50% 50%; will-change: transform; backface-visibility: hidden; }
 .showreel__video { width: 100%; height: 100%; object-fit: cover; }
 .showreel__media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,10,.15), rgba(10,10,10,.8)); opacity: 0; transition: opacity .3s; }
 .showreel.is-full .showreel__media::after { opacity: 1; }
@@ -554,13 +556,15 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
   .hero__gl { z-index: 1; opacity: .85; }
   .hero__shade { display: none; }
   .hero__stats { z-index: 3; margin-top: 40px; }
-  .showreel__words { flex-direction: column; justify-content: space-between; padding: 17vh 0 17vh; }
-  .showreel__w { font-size: 21vw; }
-  .showreel__media { clip-path: inset(30% 20% 30% 20% round 20px); }
+  .showreel__words { flex-direction: column; justify-content: space-between; align-items: center; padding: 11vh 0 12vh; }
+  .showreel__w { font-size: 15vw; }
+  .showreel__w--r { text-align: center; }
+  .showreel__w br { display: none; }
+  .showreel__media { transform: scale(.5); border-radius: 36px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .showreel__media { clip-path: none; }
+  .showreel__media { transform: none; border-radius: 0; }
   .showreel__overlay { opacity: 1; }
   .showreel__words { display: none; }
 }
