@@ -17,7 +17,7 @@ Abra http://localhost:5173
 - `assets/reels` — vídeos e capas do baralho (`reel-01.mp4` ... `reel-06.mp4`)
 - `assets/feed` — retrato do feed do Instagram
 - `assets/partners` — logos dos parceiros
-- `assets/brand` — logo FT (foto de perfil, 150px — trocar por arquivo em alta)
+- `assets/brand` — logo grafite FT (`ft-logo.png` em alta, `ft-logo-640.png` para uso geral), favicons e `ft-profile.jpg` (foto de perfil do Instagram, usada só onde o site imita o Instagram)
 
 ## Tarefas comuns
 - **Trocar um reel:** salve o novo `.mp4` e a capa `.jpg` em `assets/reels` e ajuste `code`/`tag` em `js/data.js`.

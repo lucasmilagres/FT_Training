@@ -61,7 +61,7 @@ export function initHero3D(canvas, { reduced = false } = {}) {
   const color = new THREE.Color();
   const cGray = new THREE.Color(0x3a3a3a);
   const cAccent = new THREE.Color(0x7a6000);
-  const cYellow = new THREE.Color(0xffc800);
+  const cYellow = new THREE.Color(0xffcb3c);
   const cHot = new THREE.Color(0xfff2b0);
 
   // cursor -> plano

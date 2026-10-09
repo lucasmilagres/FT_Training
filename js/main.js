@@ -567,7 +567,9 @@ function initMagnetic() {
 function intro() {
   document.body.classList.add('is-loading');
   const tl = gsap.timeline({ onComplete: () => document.body.classList.remove('is-loading') });
-  tl.to('.loader__bar span', { scaleX: 1, duration: 0.8, ease: 'power2.inOut' })
+  tl.from('.loader__logo', { scale: 0.5, rotate: -14, opacity: 0, duration: 0.7, ease: 'back.out(1.8)' })
+    .to('.loader__bar span', { scaleX: 1, duration: 0.8, ease: 'power2.inOut' }, '-=.2')
+    .to('.loader__logo', { scale: 1.08, duration: 0.25, ease: 'power2.out', yoyo: true, repeat: 1 })
     .to('.loader', { clipPath: 'inset(0 0 100% 0)', duration: 0.8, ease: 'expo.inOut' })
     .set('.loader', { display: 'none' });
   if (reduced) return tl;
@@ -576,6 +578,7 @@ function intro() {
     .from('.hero__kicker, .hero__lead, .hero__ctas', { y: 30, opacity: 0, stagger: 0.08, duration: 0.8, ease: 'power3.out' }, '-=.8')
     .from('.hero__frame', { clipPath: 'inset(100% 0% 0% 0%)', duration: 1.2, ease: 'expo.inOut' }, '-=1.2')
     .from('.hero__vertical', { opacity: 0, duration: 0.6 }, '-=.4')
+    .from('.hero__sticker', { scale: 2.2, rotate: -40, opacity: 0, duration: 0.6, ease: 'back.out(1.6)' }, '-=.5')
     .from('.hero__stats > *', { y: 24, opacity: 0, stagger: 0.08, duration: 0.7, ease: 'power3.out' }, '-=.7');
   $$('.hero__stats strong').forEach((s) => {
     const o = { v: 0 };
