@@ -599,7 +599,7 @@ function intro() {
     .to('.loader__logo', { scale: 1.08, duration: 0.25, ease: 'power2.out', yoyo: true, repeat: 1 })
     .to('.loader', { clipPath: 'inset(0 0 100% 0)', duration: 0.8, ease: 'expo.inOut' })
     .set('.loader', { display: 'none' });
-  if (reduced) return tl;
+  if (reduced) { $('.hero__title').classList.add('is-in'); return tl; }
   tl.from('.hero__title .line > span', { yPercent: 115, duration: 1.1, ease: 'expo.out', stagger: 0.09, onComplete: () => $('.hero__title').classList.add('is-in') }, '-=.35')
     .from('.nav', { y: -30, opacity: 0, duration: 0.7, ease: 'power3.out' }, '<')
     .from('.hero__kicker, .hero__lead, .hero__ctas', { y: 30, opacity: 0, stagger: 0.08, duration: 0.8, ease: 'power3.out' }, '-=.8')
@@ -619,6 +619,7 @@ async function boot() {
   if (!gsap || !ScrollTrigger) {
     // sem GSAP: site funciona estático
     $('.loader').remove();
+    $('.hero__title').classList.add('is-in');
     initDeckFallback();
     loadFeed();
     startHeroVideo();
