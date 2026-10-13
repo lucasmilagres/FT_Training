@@ -1,4 +1,30 @@
+# Site aberto para buscadores e assistentes de IA
 User-agent: *
+Allow: /
+
+# Robôs de IA (busca e respostas) — liberados explicitamente
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
 Allow: /
 
 Sitemap: https://www.fttraining.com.br/sitemap.xml

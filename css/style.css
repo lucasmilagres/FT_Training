@@ -619,3 +619,25 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
   .nav.is-solid { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(10, 10, 10, .95); }
   .hero__video { filter: none; }
 }
+
+/* ---------- 06 DÚVIDAS (FAQ) ---------- */
+.faq__grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: clamp(40px, 6vw, 100px); align-items: start; }
+.faq__intro { position: relative; }
+.faq__list { display: flex; flex-direction: column; gap: 10px; }
+.faq__item { border: 1px solid var(--line); border-radius: 14px; background: #0f0f0f; transition: border-color .3s, background .3s; }
+.faq__item[open] { border-color: var(--line-2); background: #131313; }
+.faq__item summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 22px; }
+.faq__item summary::-webkit-details-marker { display: none; }
+.faq__item h3 { margin: 0; font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: clamp(20px, 1.9vw, 26px); line-height: 1.1; }
+.faq__item p { margin: 0; padding: 0 22px 22px; color: #b9b5ac; font-weight: 300; max-width: 640px; }
+.faq__icon { position: relative; flex: none; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-2); transition: transform .4s var(--ease), background .3s, border-color .3s; }
+.faq__icon::before, .faq__icon::after { content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 2px; margin: -1px 0 0 -6px; background: var(--y); }
+.faq__icon::after { transform: rotate(90deg); }
+.faq__item[open] .faq__icon { transform: rotate(45deg); background: var(--y); border-color: var(--y); }
+.faq__item[open] .faq__icon::before, .faq__item[open] .faq__icon::after { background: var(--ink); }
+.faq__item summary:hover h3 { color: var(--y); }
+.footer__coach { color: var(--mute); font-size: 14px; margin-top: 8px; }
+@media (max-width: 1080px) {
+  .faq__grid { grid-template-columns: 1fr; }
+  .faq__intro { position: static; }
+}
