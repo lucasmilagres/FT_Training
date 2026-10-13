@@ -4,3 +4,7 @@ node_modules/
 Thumbs.db
 *.pdf
 anuncios/
+
+# imagens soltas na raiz (criativos de anúncio), não fazem parte do site
+/*.png
+/*.jpg
