@@ -24,6 +24,7 @@ Abra http://localhost:5173
 - **Feed do Instagram ao vivo:** crie um feed gratuito em https://behold.so (conectar o Instagram da FT, formato JSON) e cole a URL em `beholdFeedUrl` no `js/data.js`. Sem isso, o site mostra o retrato salvo em `assets/feed`.
 - **Horários:** HTML da seção `#horarios` + array `SLOTS` no topo de `js/main.js`.
 - **WhatsApp:** campo `whatsapp` em `js/data.js`.
+- **Google Analytics 4:** ID em `GA_ID` no topo de `js/analytics.js`. Só envia dados em www.fttraining.com.br e só grava cookies depois que a pessoa aceita o aviso (Consent Mode v2). Eventos próprios: `clique_whatsapp` e `clique_instagram`, com o parâmetro `origem` (de onde veio o clique).
 
 ## Publicar
 Qualquer hospedagem estática serve (Netlify, Vercel, GitHub Pages, Hostinger). Envie a pasta inteira, exceto `.claude/`.

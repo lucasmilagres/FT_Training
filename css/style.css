@@ -415,6 +415,8 @@ body::after {
 .footer a { transition: color .3s; }
 .footer a:hover { color: var(--y); }
 .footer__base { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--mute); }
+.footer__cookies { background: none; border: 0; padding: 0; color: inherit; cursor: pointer; transition: color .3s; }
+.footer__cookies:hover { color: var(--y); }
 
 /* ---------- WhatsApp flutuante ---------- */
 .wpp-float {
@@ -430,6 +432,26 @@ body::after {
 .wpp-float::before { content: ""; position: absolute; inset: -1.5px; border-radius: inherit; border: 1.5px solid var(--y); animation: ring 2.4s infinite; }
 .wpp-float:hover { background: var(--y); color: var(--ink); }
 @keyframes ring { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.35); opacity: 0; } }
+
+/* ---------- Aviso de cookies ---------- */
+.consent {
+  position: fixed; left: 22px; bottom: 22px; z-index: 150; max-width: 420px;
+  display: flex; flex-direction: column; gap: 14px; padding: 18px 20px;
+  background: var(--coal); color: var(--bone); border: 1px solid var(--line-2); border-left: 3px solid var(--y); border-radius: 14px;
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, .8);
+  opacity: 0; transform: translateY(16px); pointer-events: none; transition: opacity .4s var(--ease), transform .4s var(--ease);
+}
+.consent.is-open { opacity: 1; transform: none; pointer-events: auto; }
+.consent p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--bone); }
+.consent__btns { display: flex; gap: 10px; justify-content: flex-end; }
+.consent button {
+  font-family: var(--f-mono); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  padding: 10px 18px; border-radius: 999px; cursor: pointer; transition: background .3s, color .3s, border-color .3s;
+}
+.consent__no { background: transparent; color: var(--mute); border: 1px solid var(--line-2); }
+.consent__no:hover { color: var(--bone); border-color: var(--bone); }
+.consent__ok { background: var(--y); color: var(--ink); border: 1px solid var(--y); }
+.consent__ok:hover { background: var(--bone); border-color: var(--bone); }
 
 /* ---------- reveal base (JS ativa) ---------- */
 .js .reveal { opacity: 0; transform: translateY(40px); }
@@ -488,6 +510,7 @@ body::after {
   .footer__grid { grid-template-columns: 1fr; gap: 30px; }
   .footer__base { flex-direction: column; gap: 10px; }
   .wpp-float { right: 16px; bottom: 16px; height: 56px; padding: 0 15px; }
+  .consent { left: 16px; right: 16px; bottom: 84px; max-width: none; }
   .tape--yellow span { padding: 0 18px; }
   .partner img { width: 50px; height: 50px; }
   .tapes { height: 260px; }
