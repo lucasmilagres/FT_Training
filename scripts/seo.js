@@ -15,6 +15,10 @@ const faq = [
     a: 'Na FT Training. Segunda, quarta e sexta é dia de FT Hyrox: o método completo da prova dividido ao longo da semana, com corrida, as estações (SkiErg, sled push, sled pull, burpee broad jump, remo, farmers carry, lunges e wall balls) e condicionamento. O head coach, Fábio Tanaka, tem certificação de treinador HYROX e compete na modalidade.'
   },
   {
+    q: 'Onde fica a FT Training?',
+    a: 'Na Rua Pitangui, 175, bairro Bom Pastor, em Divinópolis-MG (CEP 35500-151). O mapa e o botão de rota estão na seção de localização do site.'
+  },
+  {
     q: 'A FT Training é um box de CrossFit?',
     a: 'A FT Training é um box de treinamento híbrido em Divinópolis. As aulas têm cross training (levantamentos, ginástica e condicionamento de alta intensidade), mas a metodologia vai além e une Hyrox, corrida e hipertrofia. O head coach é certificado CF-L1 e CF-Kids.'
   },
@@ -78,7 +82,9 @@ const ld = {
       logo: SITE + 'assets/brand/icon-512.png',
       image: SITE + 'assets/og-cover.jpg',
       telephone: '+55 37 99961-1960',
-      address: { '@type': 'PostalAddress', addressLocality: 'Divinópolis', addressRegion: 'MG', addressCountry: 'BR' },
+      address: { '@type': 'PostalAddress', streetAddress: 'Rua Pitangui, 175 - Bom Pastor', addressLocality: 'Divinópolis', addressRegion: 'MG', postalCode: '35500-151', addressCountry: 'BR' },
+      geo: { '@type': 'GeoCoordinates', latitude: -20.1250719, longitude: -44.8839479 },
+      hasMap: 'https://maps.app.goo.gl/A3rmkWkCk5DWfzD1A',
       areaServed: { '@type': 'City', name: 'Divinópolis' },
       openingHoursSpecification: [
         { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '06:00', closes: '10:00' },
