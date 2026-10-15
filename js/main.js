@@ -602,7 +602,7 @@ function intro() {
   if (reduced) { $('.hero__title').classList.add('is-in'); return tl; }
   tl.from('.hero__title .line > span', { yPercent: 115, duration: 1.1, ease: 'expo.out', stagger: 0.09, onComplete: () => $('.hero__title').classList.add('is-in') }, '-=.35')
     .from('.nav', { y: -30, opacity: 0, duration: 0.7, ease: 'power3.out' }, '<')
-    .from('.hero__kicker, .hero__lead, .hero__ctas, .hero__coach', { y: 30, opacity: 0, stagger: 0.08, duration: 0.8, ease: 'power3.out' }, '-=.8')
+    .from('.hero__kicker, .hero__lead, .hero__ctas', { y: 30, opacity: 0, stagger: 0.08, duration: 0.8, ease: 'power3.out' }, '-=.8')
     .from('.hero__frame', { clipPath: 'inset(100% 0% 0% 0%)', duration: 1.2, ease: 'expo.inOut' }, '-=1.2')
     .from('.hero__vertical', { opacity: 0, duration: 0.6 }, '-=.4')
     .from('.hero__sticker', { scale: 2.2, rotate: -40, opacity: 0, duration: 0.6, ease: 'back.out(1.6)' }, '-=.5')
