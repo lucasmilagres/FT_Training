@@ -1,0 +1,157 @@
+/* =========================================================
+   FT TRAINING — área do coach (login + treinos na TV)
+   Mesmos tokens do site (css/style.css), arquivo separado para as páginas ficarem leves.
+   ========================================================= */
+:root {
+  --ink: #0a0a0a;
+  --coal: #121212;
+  --char: #1a1a1a;
+  --line: #262626;
+  --line-2: #333;
+  --mute: #8a8780;
+  --bone: #f2efe8;
+  --y: #ffcb3c;
+  --y-glow: rgba(255, 203, 60, .55);
+  --red: #ff6b5b;
+
+  --f-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --f-body: "Barlow", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, monospace;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --stripe: repeating-linear-gradient(-45deg, var(--y) 0 18px, var(--ink) 18px 36px);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--ink); color: var(--bone);
+  font-family: var(--f-body); font-size: 17px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+button, input { font: inherit; color: inherit; }
+h1, h2, h3, p { margin: 0; }
+[hidden] { display: none !important; }
+.mono { font-family: var(--f-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.y { color: var(--y); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;
+  padding: 16px 26px; border-radius: 999px; border: 0; cursor: pointer;
+  font-family: var(--f-mono); font-weight: 700; font-size: 13px; letter-spacing: .08em; text-transform: uppercase;
+  transition: background .3s, box-shadow .3s, opacity .3s;
+}
+.btn--yellow { background: var(--y); color: var(--ink); }
+.btn--yellow:hover { box-shadow: 0 10px 40px -8px var(--y-glow); }
+.btn--ghost { background: transparent; border: 1px solid var(--line-2); color: var(--bone); }
+.btn--ghost:hover { border-color: var(--y); color: var(--y); }
+.btn[disabled] { opacity: .5; cursor: progress; }
+.link { background: none; border: 0; padding: 0; cursor: pointer; color: var(--mute); text-decoration: underline; text-underline-offset: 3px; }
+.link:hover { color: var(--y); }
+
+/* ---------- login ---------- */
+.login { min-height: 100%; display: grid; place-items: center; padding: 40px 16px; position: relative; }
+.login::before { content: ""; position: fixed; inset: 0 0 auto; height: 8px; background: var(--stripe); }
+.login__card {
+  width: 100%; max-width: 440px; padding: 40px 32px 32px;
+  background: var(--coal); border: 1px solid var(--line); border-radius: 18px; text-align: center;
+}
+.login__logo { width: 120px; height: auto; margin: 0 auto 22px; display: block; }
+.login h1 {
+  font-family: var(--f-display); font-weight: 900; font-style: italic; text-transform: uppercase;
+  font-size: 46px; line-height: .95; margin: 10px 0 12px;
+}
+.login__lead { color: #bdb9b0; font-size: 15px; margin-bottom: 26px; }
+.login__lead b { color: var(--bone); font-weight: 600; }
+.login form { display: grid; gap: 14px; text-align: left; }
+.login label { color: var(--mute); }
+.login input {
+  width: 100%; padding: 16px 18px; border-radius: 12px; outline: none;
+  background: var(--ink); border: 1px solid var(--line-2); font-size: 18px;
+  transition: border-color .25s, box-shadow .25s;
+}
+.login input:focus { border-color: var(--y); box-shadow: 0 0 0 3px rgba(255, 203, 60, .18); }
+.login input.codigo { font-family: var(--f-mono); font-size: 30px; letter-spacing: .3em; text-align: center; padding-left: .3em; }
+.login .btn { width: 100%; margin-top: 4px; }
+.login__erro { color: var(--red); font-size: 14px; min-height: 1.5em; text-align: center; }
+.login__alt { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; margin-top: 4px; }
+.login__voltar { margin-top: 26px; font-size: 14px; color: var(--mute); text-decoration: none; display: inline-block; }
+.login__voltar:hover { color: var(--y); }
+
+/* ---------- treinos (TV) ---------- */
+.tv { height: 100%; display: flex; flex-direction: column; overflow: hidden; --fs: 28px; }
+.tv.ocioso { cursor: none; }
+.tv__top {
+  display: flex; align-items: center; gap: 2.2vw;
+  padding: 2.2vh 3vw 1.8vh; border-bottom: 1px solid var(--line);
+}
+.tv__logo { height: 9vh; min-height: 48px; width: auto; }
+.tv__titulo .mono { font-size: max(12px, 1.4vh); letter-spacing: .3em; }
+.tv__titulo h1 {
+  font-family: var(--f-display); font-weight: 900; font-style: italic; text-transform: uppercase;
+  font-size: max(34px, 7vh); line-height: .9; margin-top: .4vh;
+}
+.tv__agora { margin-left: auto; text-align: right; }
+.tv__data { font-family: var(--f-display); font-weight: 800; font-style: italic; text-transform: uppercase; font-size: max(20px, 3.6vh); color: var(--mute); line-height: 1; }
+.tv__relogio { font-family: var(--f-mono); font-weight: 700; font-size: max(30px, 6.4vh); color: var(--y); line-height: 1; margin-top: .6vh; font-variant-numeric: tabular-nums; }
+.tv__outro-dia { display: inline-block; margin-top: .8vh; padding: .3em .8em; border-radius: 999px; background: var(--y); color: var(--ink); font-weight: 700; }
+
+.tv__quadro { flex: 1; min-height: 0; padding: 2.4vh 3vw; overflow: hidden; display: flex; flex-direction: column; gap: 1.6vh; font-size: var(--fs); }
+.tv__grade { flex: 1; min-height: 0; display: grid; gap: 1.6vw; align-content: stretch; }
+.tv__grade--1 { grid-template-columns: 1fr; }
+.tv__grade--2 { grid-template-columns: repeat(2, 1fr); }
+.tv__grade--3 { grid-template-columns: repeat(3, 1fr); }
+.tv__grade--4 { grid-template-columns: repeat(4, 1fr); }
+.tv__coluna { display: flex; flex-direction: column; gap: 1.6vw; min-height: 0; }
+
+.bloco {
+  position: relative; flex: 1 1 auto; min-height: 0;
+  background: var(--coal); border: 1px solid var(--line); border-radius: 18px;
+  padding: .9em 1em 1em; overflow: hidden;
+}
+.bloco::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--y); }
+.bloco h3 {
+  font-family: var(--f-mono); font-weight: 700; font-size: .5em; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--y); margin-bottom: .5em;
+}
+.bloco h3::before { content: "+ "; }
+.bloco p { white-space: pre-line; overflow-wrap: anywhere; line-height: 1.28; font-weight: 600; }
+.tv__modalidade {
+  font-family: var(--f-display); font-weight: 900; font-style: italic; text-transform: uppercase;
+  font-size: 1.15em; line-height: 1; color: var(--bone); display: flex; align-items: center; gap: .4em;
+}
+.tv__modalidade::before { content: ""; width: .7em; height: .7em; background: var(--y); transform: skewX(-12deg); flex: none; }
+
+.tv__vazio { flex: 1; display: grid; place-content: center; text-align: center; gap: 2vh; }
+.tv__vazio h2 { font-family: var(--f-display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: max(36px, 8vh); line-height: .95; }
+.tv__vazio p { color: var(--mute); font-size: max(14px, 2vh); }
+
+.tv__base { position: relative; height: 1.4vh; min-height: 8px; background: var(--stripe); }
+.tv__status { position: fixed; right: 3vw; bottom: 2.4vh; color: var(--mute); font-size: max(10px, 1.2vh); opacity: .7; }
+
+.tv__ctl {
+  position: fixed; left: 50%; bottom: 4vh; transform: translateX(-50%);
+  display: flex; gap: 8px; padding: 8px; border-radius: 999px;
+  background: rgba(18, 18, 18, .92); border: 1px solid var(--line-2);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  transition: opacity .4s var(--ease), transform .4s var(--ease);
+}
+.tv__ctl .btn { padding: 12px 18px; font-size: 12px; }
+.tv.ocioso .tv__ctl { opacity: 0; transform: translate(-50%, 20px); pointer-events: none; }
+
+/* celular / tela em pé: rola normalmente, um bloco por linha */
+@media (max-width: 899px), (orientation: portrait) {
+  .tv { height: auto; min-height: 100%; overflow: visible; --fs: 20px !important; }
+  .tv__top { flex-wrap: wrap; padding: 18px 16px; gap: 14px; }
+  .tv__logo { height: 48px; }
+  .tv__titulo h1 { font-size: 34px; }
+  .tv__agora { margin-left: 0; width: 100%; display: flex; align-items: baseline; justify-content: space-between; text-align: left; }
+  .tv__relogio { font-size: 30px; margin: 0; }
+  .tv__quadro { padding: 16px 16px 120px; overflow: visible; }
+  .tv__grade { grid-template-columns: 1fr !important; height: auto; gap: 14px; }
+  .tv__coluna { gap: 14px; }
+  .bloco { flex: none; }
+  .tv__status { position: static; display: block; padding: 0 16px 16px; }
+  .tv__ctl { flex-wrap: wrap; justify-content: center; width: calc(100% - 32px); border-radius: 18px; bottom: 16px; }
+  .tv.ocioso .tv__ctl { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
+}

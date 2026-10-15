@@ -4,7 +4,7 @@ Site institucional estático (HTML + CSS + JS). Não precisa de build.
 
 ## Rodar localmente
 ```
-npx http-server . -p 5173 -c-1
+node scripts/dev.js
 ```
 Abra http://localhost:5173
 
@@ -26,5 +26,14 @@ Abra http://localhost:5173
 - **WhatsApp:** campo `whatsapp` em `js/data.js`.
 - **Google Analytics 4:** ID em `GA_ID` no topo de `js/analytics.js`. Só envia dados em www.fttraining.com.br e só grava cookies depois que a pessoa aceita o aviso (Consent Mode v2). Eventos próprios: `clique_whatsapp` e `clique_instagram`, com o parâmetro `origem` (de onde veio o clique).
 
+## Área do coach (login + treinos na TV)
+- `/entrar` — login sem senha: e-mail → código de 8 dígitos enviado pelo Resend (de `acesso@fttraining.com.br`). A sessão dura 1 ano e se renova sozinha com o uso (a TV não desloga).
+- `/treinos` — treino do dia em tela cheia para a TV do box. Só abre logado. A aba **Treinos** aparece no menu do site para quem está logado; o link "Área do coach" fica no rodapé.
+- Os treinos vêm da planilha do Google Sheets: uma linha por treino, com uma coluna **Data** (`15/10/2026`, `15/10` ou `qui 15/10`) e uma coluna para cada parte (ex.: `Modalidade | Aquecimento | Força | WOD`). Coluna "Modalidade" vira o título do quadro; colunas com título começando em `_` não aparecem (anotações). Duas linhas na mesma data = dois treinos lado a lado.
+- A TV relê a planilha a cada 5 min e troca de dia sozinha (às 05h a página recarrega inteira). Não precisa de cron nem banco de dados: o dia certo sai da coluna Data. Setas ← → no teclado/controle mostram outros dias (volta para hoje sozinha em 3 min).
+- Código: `api/` (funções da Vercel), `entrar.html` + `js/entrar.js`, `treinos.html` + `js/treinos.js`, `css/painel.css`.
+- **Variáveis de ambiente na Vercel** (Settings → Environment Variables), explicadas em `.env.example`: `RESEND_API_KEY`, `SESSION_SECRET`, `TREINOS_EMAILS`, `TREINOS_PLANILHA`. Depois de mudar, faça um novo deploy.
+- **Testar local:** copie `.env.example` para `.env.local`, preencha e rode `node scripts/dev.js` (substitui o http-server: serve o site e as funções de `/api`). Sem `RESEND_API_KEY` o código de login aparece no terminal.
+
 ## Publicar
-Qualquer hospedagem estática serve (Netlify, Vercel, GitHub Pages, Hostinger). Envie a pasta inteira, exceto `.claude/`.
+Hospedado na Vercel (as funções de `/api` exigem Vercel). Push na branch `main` publica sozinho.

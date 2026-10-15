@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Entrar | FT Training</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png">
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,800;1,900&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/painel.css">
+</head>
+<body>
+  <main class="login">
+    <div class="login__card">
+      <img class="login__logo" src="/assets/brand/ft-logo-sm.webp" alt="FT Training" width="120" height="79">
+      <p class="mono y">+ Área do coach</p>
+
+      <!-- passo 1: e-mail -->
+      <section id="passo-email">
+        <h1>Entrar</h1>
+        <p class="login__lead">Digite seu e-mail. Vamos enviar um código de acesso, sem senha.</p>
+        <form id="form-email" novalidate>
+          <label class="mono" for="email">E-mail</label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required placeholder="seu@email.com">
+          <button class="btn btn--yellow" type="submit">Enviar código</button>
+          <p class="login__erro" role="alert"></p>
+        </form>
+      </section>
+
+      <!-- passo 2: código -->
+      <section id="passo-codigo" hidden>
+        <h1>Confira o e-mail</h1>
+        <p class="login__lead">Mandamos um código de 8 dígitos para <b id="email-enviado"></b>. Ele vale por 10 minutos.</p>
+        <form id="form-codigo" novalidate>
+          <label class="mono" for="codigo">Código</label>
+          <input id="codigo" class="codigo" name="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="9" required placeholder="0000 0000">
+          <button class="btn btn--yellow" type="submit">Entrar</button>
+          <p class="login__erro" role="alert"></p>
+          <div class="login__alt">
+            <button type="button" class="link" id="trocar">Trocar e-mail</button>
+            <button type="button" class="link" id="reenviar">Reenviar código</button>
+          </div>
+        </form>
+      </section>
+
+      <a class="login__voltar mono" href="/">← Voltar ao site</a>
+    </div>
+  </main>
+  <script src="/js/entrar.js"></script>
+</body>
+</html>

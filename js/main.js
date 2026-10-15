@@ -460,7 +460,7 @@ function initScroll() {
 
   // nav sólida + link ativo
   ScrollTrigger.create({ start: 60, end: 'max', onToggle: (s) => $('#nav').classList.toggle('is-solid', s.isActive) });
-  $$('.nav__links a').forEach((a) => {
+  $$('.nav__links a[href^="#"]').forEach((a) => {
     const sec = $(a.getAttribute('href'));
     if (!sec) return;
     ScrollTrigger.create({ trigger: sec, start: 'top 50%', end: 'bottom 50%', onToggle: (s) => a.classList.toggle('is-active', s.isActive) });

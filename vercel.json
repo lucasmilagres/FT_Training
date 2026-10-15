@@ -1,4 +1,11 @@
 {
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/(entrar|treinos|api/.*)",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    }
+  ],
   "redirects": [
     {
       "source": "/",

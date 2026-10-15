@@ -8,3 +8,7 @@ anuncios/
 # imagens soltas na raiz (criativos de anúncio), não fazem parte do site
 /*.png
 /*.jpg
+
+# variáveis locais (chaves)
+.env.local
+.env*.local

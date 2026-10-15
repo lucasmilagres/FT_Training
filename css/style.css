@@ -119,6 +119,9 @@ body::after {
 .nav__links a::after { content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: var(--y); transform: scaleX(0); transform-origin: right; transition: transform .4s var(--ease); }
 .nav__links a:hover, .nav__links a.is-active { color: var(--bone); }
 .nav__links a:hover::after, .nav__links a.is-active::after { transform: scaleX(1); transform-origin: left; }
+.so-coach { display: none !important; }
+.is-coach .so-coach { display: flex !important; }
+.nav__links .nav__treinos { color: var(--y); }
 .nav__burger { display: none; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line-2); position: relative; }
 .nav__burger span { position: absolute; left: 14px; right: 14px; height: 2px; background: var(--bone); transition: transform .35s var(--ease), top .35s; }
 .nav__burger span:first-child { top: 18px; }
