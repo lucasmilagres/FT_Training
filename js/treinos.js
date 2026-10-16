@@ -131,6 +131,18 @@
     return fetch(url, { credentials: 'same-origin', cache: 'no-store' }).then(function (r) {
       if (r.status === 401) { location.replace('/entrar?volta=' + encodeURIComponent(location.pathname + location.search)); return; }
       return r.json().then(function (j) {
+        if (j.semPlanilha) {
+          quadro.innerHTML = '';
+          var v = el('div', 'tv__vazio');
+          v.appendChild(el('h2', null, 'Nenhuma planilha ligada ainda'));
+          v.appendChild(el('p', 'mono', 'Cole o link da planilha de treinos para começar'));
+          var a = el('a', 'btn btn--yellow', 'Ligar planilha');
+          a.href = '/planilha';
+          v.appendChild(a);
+          quadro.appendChild(v);
+          status('');
+          return;
+        }
         if (!r.ok) throw new Error(j.erro || 'Erro ' + r.status);
         hojeServidor = j.hoje;
         desenhar(j);

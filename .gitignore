@@ -14,3 +14,8 @@ anuncios/
 .env*.local
 
 .vercel
+
+
+# chaves de conta de serviço do Google (nunca versionar)
+criar-*.json
+*-service-account*.json

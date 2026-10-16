@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Planilha de treinos | FT Training</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png">
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,800;1,900&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/painel.css">
+</head>
+<body>
+  <main class="login">
+    <div class="login__card cfg">
+      <img class="login__logo" src="/assets/brand/ft-logo-sm.webp" alt="FT Training" width="120" height="79">
+      <p class="mono y">+ Área do coach</p>
+      <h1>Planilha de treinos</h1>
+
+      <p class="cfg__carregando mono" id="carregando">Carregando…</p>
+
+      <div id="conteudo" hidden>
+        <div class="cfg__atual" id="atual" hidden>
+          <p class="mono">Ligada agora</p>
+          <p class="cfg__nome"><a id="atual-link" href="#" target="_blank" rel="noopener"></a></p>
+          <p class="cfg__aba mono" id="atual-aba"></p>
+        </div>
+
+        <ol class="cfg__passos">
+          <li>
+            <h2>Compartilhe a planilha com o robô do site</h2>
+            <p>Na planilha, clique em <b>Compartilhar</b>, cole o e-mail abaixo, escolha <b>Leitor</b> e envie. Ele só consegue ler, nunca editar.</p>
+            <div class="cfg__robo" id="robo-box">
+              <code id="robo"></code>
+              <button type="button" class="btn btn--ghost" id="copiar">Copiar</button>
+            </div>
+            <p class="cfg__aviso" id="sem-robo" hidden>O robô do Google ainda não foi configurado no servidor. Fale com quem cuida do site.</p>
+          </li>
+          <li>
+            <h2>Cole o link da planilha</h2>
+            <form id="form" novalidate>
+              <input id="url" type="url" inputmode="url" placeholder="https://docs.google.com/spreadsheets/d/…" required>
+              <label class="mono" for="aba" id="aba-label" hidden>Aba com os treinos</label>
+              <select id="aba" hidden></select>
+              <button class="btn btn--yellow" type="submit">Salvar e testar</button>
+              <p class="login__erro" role="alert"></p>
+            </form>
+          </li>
+        </ol>
+
+        <section class="cfg__previa" id="previa" hidden>
+          <p class="mono y">+ Funcionou</p>
+          <p class="cfg__resumo" id="resumo"></p>
+          <div id="previa-treinos"></div>
+          <a class="btn btn--yellow" href="/treinos">Ver na TV</a>
+        </section>
+      </div>
+
+      <a class="login__voltar mono" href="/treinos">← Voltar aos treinos</a>
+    </div>
+  </main>
+  <script src="/js/planilha.js"></script>
+</body>
+</html>

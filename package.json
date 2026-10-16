@@ -1,0 +1,8 @@
+{
+  "name": "ft-training-site",
+  "private": true,
+  "description": "Site da FT Training. Estático; a pasta api/ roda como funções da Vercel.",
+  "dependencies": {
+    "@vercel/blob": "2.8.2"
+  }
+}

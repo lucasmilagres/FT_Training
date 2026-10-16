@@ -47,14 +47,14 @@ function paraISO(valor, anoPadrao) {
 
 const limpa = (s) => String(s || '').replace(/ /g, ' ').trim();
 
-function treinosDoDia(csv, dataISO) {
-  const linhas = lerCSV(csv).map((l) => l.map(limpa)).filter((l) => l.some(Boolean));
-  if (!linhas.length) return [];
-  const ano = +dataISO.slice(0, 4);
+// Separa cabeçalho, coluna da data e coluna do título (modalidade)
+function estrutura(brutas, ano) {
+  const linhas = brutas.map((l) => l.map(limpa)).filter((l) => l.some(Boolean));
+  if (!linhas.length) return null;
 
   // Cabeçalho: 1ª linha, se ela não for uma linha de treino
   let cab = linhas[0];
-  let colData = cab.findIndex((t) => /\b(data|dia|date)\b/i.test(t));
+  let colData = cab.findIndex((t) => /(data|dia|date)/i.test(t));
   const temCab = colData >= 0 || !cab.some((t) => paraISO(t, ano));
   const corpo = temCab ? linhas.slice(1) : linhas;
   if (!temCab) cab = [];
@@ -67,12 +67,20 @@ function treinosDoDia(csv, dataISO) {
       if (comData >= corpo.length / 2) colData = c;
     }
   }
-  if (colData < 0) return [];
+  if (colData < 0) return null;
 
   const colTitulo = cab.findIndex((t) => /^(modalidade|aula|turma|tipo|hor[aá]rio|treino)$/i.test(t));
+  return { cab, corpo, colData, colTitulo };
+}
+
+// linhas = matriz de células (da API do Google ou de lerCSV)
+function treinosDoDia(linhas, dataISO) {
+  const e = estrutura(linhas, +dataISO.slice(0, 4));
+  if (!e) return [];
+  const { cab, corpo, colData, colTitulo } = e;
 
   return corpo
-    .filter((l) => paraISO(l[colData], ano) === dataISO)
+    .filter((l) => paraISO(l[colData], +dataISO.slice(0, 4)) === dataISO)
     .map((l) => ({
       titulo: colTitulo >= 0 && colTitulo !== colData ? l[colTitulo] : '',
       blocos: l
@@ -83,4 +91,17 @@ function treinosDoDia(csv, dataISO) {
     .filter((t) => t.blocos.length);
 }
 
-module.exports = { FUSO, hojeISO, lerCSV, paraISO, treinosDoDia };
+// Para a tela de configuração: o que o site entendeu da planilha
+function resumo(linhas, hoje) {
+  const e = estrutura(linhas, +hoje.slice(0, 4));
+  if (!e) return { colunas: (linhas[0] || []).map(limpa).filter(Boolean), datas: 0, proxima: null, colunaData: null };
+  const datas = e.corpo.map((l) => paraISO(l[e.colData], +hoje.slice(0, 4))).filter(Boolean);
+  return {
+    colunas: e.cab.filter(Boolean),
+    colunaData: e.cab[e.colData] || `coluna ${e.colData + 1}`,
+    datas: datas.length,
+    proxima: datas.filter((d) => d > hoje).sort()[0] || null
+  };
+}
+
+module.exports = { FUSO, hojeISO, lerCSV, paraISO, treinosDoDia, resumo };
