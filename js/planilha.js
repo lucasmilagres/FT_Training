@@ -107,6 +107,16 @@
       .then(function () { b.disabled = false; b.textContent = 'Salvar e testar'; });
   }
 
+  $('#desconectar').addEventListener('click', function () {
+    if (!confirm('Desconectar a planilha? A TV para de mostrar os treinos até você ligar uma planilha de novo.')) return;
+    api('DELETE').then(function () {
+      mostrarAtual(null);
+      $('#previa').hidden = true;
+      campoUrl.value = '';
+      campoAba.hidden = $('#aba-label').hidden = true;
+    }).catch(function (e) { erro(e.message); });
+  });
+
   form.addEventListener('submit', function (ev) { ev.preventDefault(); salvar(campoAba.hidden ? null : campoAba.value); });
   campoUrl.addEventListener('input', function () { campoAba.hidden = $('#aba-label').hidden = true; });
   campoAba.addEventListener('change', function () { salvar(campoAba.value); });

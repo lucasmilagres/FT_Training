@@ -1,6 +1,6 @@
 // Planilha ligada pelo coach na página /planilha, guardada no Vercel Blob (store privado "ft-config").
 // Variável de ambiente: BLOB_READ_WRITE_TOKEN (criada pela Vercel ao ligar o store ao projeto).
-const { put, get } = require('@vercel/blob');
+const { put, get, del } = require('@vercel/blob');
 
 const CAMINHO = 'config/planilha.json';
 let cache = { em: 0, valor: null };
@@ -21,4 +21,9 @@ async function salvarConfig(valor) {
   cache = { em: Date.now(), valor };
 }
 
-module.exports = { lerConfig, salvarConfig };
+async function apagarConfig() {
+  await del(CAMINHO);
+  cache = { em: Date.now(), valor: null };
+}
+
+module.exports = { lerConfig, salvarConfig, apagarConfig };

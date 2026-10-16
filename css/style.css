@@ -422,7 +422,8 @@ body::after {
 .footer p { color: #bdb9b0; font-size: 15px; line-height: 1.8; }
 .footer a { transition: color .3s; }
 .footer a:hover { color: var(--y); }
-.footer__base { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--mute); }
+.footer__base { display: flex; justify-content: space-between; align-items: center; gap: 14px 28px; flex-wrap: wrap; margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--mute); }
+.footer__legal { display: flex; flex-wrap: wrap; gap: 10px 22px; }
 .footer__cookies { background: none; border: 0; padding: 0; color: inherit; cursor: pointer; transition: color .3s; }
 .footer__cookies:hover { color: var(--y); }
 

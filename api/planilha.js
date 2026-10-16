@@ -1,9 +1,10 @@
 // /api/planilha — ligar a planilha de treinos (só logado)
 // GET  → planilha ligada hoje + e-mail do robô com quem o coach precisa compartilhar
 // POST { url, aba? } → confere o acesso, salva e devolve uma prévia do que o site entendeu
+// DELETE → desliga a planilha do site
 const { usuario, json } = require('./_lib/sessao');
 const google = require('./_lib/google');
-const { lerConfig, salvarConfig } = require('./_lib/config');
+const { lerConfig, salvarConfig, apagarConfig } = require('./_lib/config');
 const { hojeISO, treinosDoDia, resumo } = require('./_lib/planilha');
 const { limparCache } = require('./_lib/fonte');
 
@@ -21,6 +22,12 @@ module.exports = async function (req, res) {
     let config = null;
     try { config = await lerConfig(); } catch (e) { console.error('config:', e.message); }
     return json(res, 200, { robo, config: config && { url: config.url, nome: config.nome, aba: config.aba, salvoEm: config.salvoEm } });
+  }
+
+  if (req.method === 'DELETE') {
+    await apagarConfig();
+    limparCache();
+    return json(res, 200, { ok: true });
   }
 
   if (req.method !== 'POST') return json(res, 405, { erro: 'Método não permitido' });
