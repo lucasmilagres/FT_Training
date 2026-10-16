@@ -1,6 +1,6 @@
-// De onde vêm os treinos: a planilha ligada em /planilha (privada, lida pelo robô do Google)
-// ou, como reserva, um link CSV "Publicar na Web" em TREINOS_PLANILHA.
-const { lerConfig } = require('./config');
+// De onde vêm os treinos: a planilha ligada em /planilha (privada, lida pelo robô do Google
+// ou pela conta Google do coach) ou, como reserva, um link CSV "Publicar na Web" em TREINOS_PLANILHA.
+const { lerConfig, lerConta } = require('./config');
 const google = require('./google');
 const { lerCSV } = require('./planilha');
 
@@ -11,7 +11,12 @@ function erro(status, msg) { const e = new Error(msg); e.status = status; return
 
 async function buscar() {
   const cfg = await lerConfig();
-  if (cfg && cfg.id) return { chave: `g:${cfg.id}:${cfg.aba}`, ler: () => google.linhas(cfg.id, cfg.aba) };
+  if (cfg && cfg.id && cfg.modo === 'google') {
+    const conta = await lerConta();
+    if (!conta) throw erro(503, 'A conta Google que ligava a planilha foi desconectada.');
+    return { chave: `google:${cfg.id}:${cfg.aba}`, ler: () => google.linhas(cfg.id, cfg.aba, conta) };
+  }
+  if (cfg && cfg.id) return { chave: `robo:${cfg.id}:${cfg.aba}`, ler: () => google.linhas(cfg.id, cfg.aba) };
 
   const url = process.env.TREINOS_PLANILHA;
   if (url) {

@@ -30,27 +30,56 @@
           <button type="button" class="link" id="desconectar">Desconectar esta planilha</button>
         </div>
 
-        <ol class="cfg__passos">
-          <li>
-            <h2>Compartilhe a planilha com o robô do site</h2>
-            <p>Na planilha, clique em <b>Compartilhar</b>, cole o e-mail abaixo, escolha <b>Leitor</b> e envie. Ele só consegue ler, nunca editar.</p>
-            <div class="cfg__robo" id="robo-box">
-              <code id="robo"></code>
-              <button type="button" class="btn btn--ghost" id="copiar">Copiar</button>
-            </div>
-            <p class="cfg__aviso" id="sem-robo" hidden>O robô do Google ainda não foi configurado no servidor. Fale com quem cuida do site.</p>
-          </li>
-          <li>
-            <h2>Cole o link da planilha</h2>
-            <form id="form" novalidate>
-              <input id="url" type="url" inputmode="url" placeholder="https://docs.google.com/spreadsheets/d/…" required>
-              <label class="mono" for="aba" id="aba-label" hidden>Aba com os treinos</label>
-              <select id="aba" hidden></select>
-              <button class="btn btn--yellow" type="submit">Salvar e testar</button>
-              <p class="login__erro" role="alert"></p>
-            </form>
-          </li>
-        </ol>
+        <p class="cfg__aviso-topo" id="aviso" role="status" hidden></p>
+
+        <div class="cfg__abas" role="tablist" aria-label="Como ligar a planilha" id="abas">
+          <button type="button" role="tab" id="tab-google" data-modo="google" aria-selected="true">Entrar com Google</button>
+          <button type="button" role="tab" id="tab-robo" data-modo="robo" aria-selected="false">Compartilhar com o robô</button>
+        </div>
+
+        <!-- jeito 1: conta Google + escolher a planilha no Google Picker -->
+        <section class="cfg__modo" id="modo-google" role="tabpanel" aria-labelledby="tab-google">
+          <div id="g-desconectado">
+            <p>Entre com a conta Google onde está a planilha e escolha ela numa janela do próprio Google. O site só enxerga <b>a planilha que você escolher</b>, nada mais do seu Drive.</p>
+            <a class="btn-google" href="/api/google/conectar">
+              <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+              Fazer login com o Google
+            </a>
+          </div>
+          <div id="g-conectado" hidden>
+            <p class="cfg__conta">Conectado como <b id="g-email"></b> · <button type="button" class="link" id="g-sair">Desconectar conta</button></p>
+            <button type="button" class="btn btn--yellow" id="g-escolher">Escolher planilha no Google Drive</button>
+          </div>
+          <p class="cfg__aviso" id="g-off" hidden>O login com Google ainda não foi configurado no servidor. Use a opção do robô.</p>
+        </section>
+
+        <!-- jeito 2: compartilhar com a conta de serviço (robô) e colar o link -->
+        <section class="cfg__modo" id="modo-robo" role="tabpanel" aria-labelledby="tab-robo" hidden>
+          <ol class="cfg__passos">
+            <li>
+              <h2>Compartilhe a planilha com o robô do site</h2>
+              <p>Na planilha, clique em <b>Compartilhar</b>, cole o e-mail abaixo, escolha <b>Leitor</b> e envie. Ele só consegue ler, nunca editar.</p>
+              <div class="cfg__robo" id="robo-box">
+                <code id="robo"></code>
+                <button type="button" class="btn btn--ghost" id="copiar">Copiar</button>
+              </div>
+              <p class="cfg__aviso" id="sem-robo" hidden>O robô do Google ainda não foi configurado no servidor. Fale com quem cuida do site.</p>
+            </li>
+            <li>
+              <h2>Cole o link da planilha</h2>
+              <form id="form" novalidate>
+                <input id="url" type="url" inputmode="url" placeholder="https://docs.google.com/spreadsheets/d/…" required>
+                <button class="btn btn--yellow" type="submit">Salvar e testar</button>
+              </form>
+            </li>
+          </ol>
+        </section>
+
+        <div class="cfg__aba-box" id="aba-box" hidden>
+          <label class="mono" for="aba">Aba com os treinos</label>
+          <select id="aba"></select>
+        </div>
+        <p class="login__erro" id="erro" role="alert"></p>
 
         <section class="cfg__previa" id="previa" hidden>
           <p class="mono y">+ Funcionou</p>

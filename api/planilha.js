@@ -1,10 +1,11 @@
 // /api/planilha — ligar a planilha de treinos (só logado)
 // GET  → planilha ligada hoje + e-mail do robô com quem o coach precisa compartilhar
-// POST { url, aba? } → confere o acesso, salva e devolve uma prévia do que o site entendeu
+// POST { url, aba?, modo? } → confere o acesso, salva e devolve uma prévia do que o site entendeu
+//   modo "google" = lê com a conta Google conectada; senão, com o robô
 // DELETE → desliga a planilha do site
 const { usuario, json } = require('./_lib/sessao');
 const google = require('./_lib/google');
-const { lerConfig, salvarConfig, apagarConfig } = require('./_lib/config');
+const { lerConfig, salvarConfig, apagarConfig, lerConta } = require('./_lib/config');
 const { hojeISO, treinosDoDia, resumo } = require('./_lib/planilha');
 const { limparCache } = require('./_lib/fonte');
 
@@ -21,7 +22,7 @@ module.exports = async function (req, res) {
   if (req.method === 'GET') {
     let config = null;
     try { config = await lerConfig(); } catch (e) { console.error('config:', e.message); }
-    return json(res, 200, { robo, config: config && { url: config.url, nome: config.nome, aba: config.aba, salvoEm: config.salvoEm } });
+    return json(res, 200, { robo, config: config && { url: config.url, nome: config.nome, aba: config.aba, modo: config.modo || 'robo', salvoEm: config.salvoEm } });
   }
 
   if (req.method === 'DELETE') {
@@ -31,27 +32,34 @@ module.exports = async function (req, res) {
   }
 
   if (req.method !== 'POST') return json(res, 405, { erro: 'Método não permitido' });
-  if (!robo) return json(res, 503, { erro: 'O robô do Google ainda não foi configurado no servidor.' });
+  const modo = req.body && req.body.modo === 'google' ? 'google' : 'robo';
+  let conta;
+  if (modo === 'google') {
+    conta = await lerConta().catch(() => null);
+    if (!conta) return json(res, 400, { erro: 'Conecte sua conta Google primeiro.' });
+  } else if (!robo) {
+    return json(res, 503, { erro: 'O robô do Google ainda não foi configurado no servidor.' });
+  }
 
   const url = String((req.body && req.body.url) || '').trim();
   const link = google.lerLink(url);
   if (!link) return json(res, 400, { erro: 'Cole o link da planilha (começa com https://docs.google.com/spreadsheets/d/...).' });
 
   try {
-    const dados = await google.info(link.id);
+    const dados = await google.info(link.id, conta);
     const pedida = req.body && req.body.aba;
     const aba = dados.abas.find((a) => a.nome === pedida) || dados.abas.find((a) => a.id === link.gid) || dados.abas[0];
-    const linhas = await google.linhas(link.id, aba.nome);
+    const linhas = await google.linhas(link.id, aba.nome, conta);
     const hoje = hojeISO();
 
-    const config = { id: link.id, url, nome: dados.nome, aba: aba.nome, salvoEm: new Date().toISOString() };
+    const config = { id: link.id, url, nome: dados.nome, aba: aba.nome, modo, salvoEm: new Date().toISOString() };
     await salvarConfig(config);
     limparCache();
 
     return json(res, 200, {
       ok: true,
       robo,
-      config: { url, nome: config.nome, aba: config.aba, salvoEm: config.salvoEm },
+      config: { url, nome: config.nome, aba: config.aba, modo, salvoEm: config.salvoEm },
       abas: dados.abas.map((a) => a.nome),
       previa: { hoje, treinos: treinosDoDia(linhas, hoje), ...resumo(linhas, hoje) }
     });

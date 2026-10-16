@@ -253,3 +253,28 @@ h1, h2, h3, p { margin: 0; }
 .doc__base { border-top: 1px solid var(--line); padding: 24px 16px 32px; text-align: center; color: var(--mute); font-size: 13px; line-height: 1.8; }
 .doc__base a { color: inherit; }
 .doc__base a:hover { color: var(--y); }
+
+/* planilha: escolha entre Google e robô */
+.cfg__aviso-topo { margin: 0 0 18px; padding: 12px 16px; border-radius: 12px; font-size: 14px; border: 1px solid var(--line-2); background: var(--ink); }
+.cfg__aviso-topo.ok { border-color: var(--y); color: var(--y); }
+.cfg__aviso-topo.ruim { border-color: var(--red); color: var(--red); }
+.cfg__abas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; border-radius: 999px; background: var(--ink); border: 1px solid var(--line); margin-bottom: 22px; }
+.cfg__abas button { border: 0; border-radius: 999px; padding: 12px 10px; cursor: pointer; background: transparent; color: var(--mute); font-family: var(--f-mono); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; transition: background .3s, color .3s; }
+.cfg__abas button[aria-selected="true"] { background: var(--y); color: var(--ink); }
+.cfg__abas[hidden] { display: none; }
+.cfg__modo > p, .cfg__modo .cfg__conta { color: #bdb9b0; font-size: 15px; }
+.cfg__modo b { color: var(--bone); }
+.cfg__conta { margin-bottom: 14px; overflow-wrap: anywhere; }
+.cfg__conta .link { font-size: 14px; }
+#g-escolher { width: 100%; }
+/* botão no padrão do Google (versão escura) */
+.btn-google {
+  display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 16px; width: 100%;
+  padding: 12px 20px; border-radius: 999px; background: #131314; border: 1px solid #8e918f; color: #e3e3e3;
+  font-family: Roboto, Arial, sans-serif; font-weight: 500; font-size: 15px; text-decoration: none; transition: background .2s, border-color .2s;
+}
+.btn-google:hover { background: #1f1f20; border-color: #e3e3e3; }
+.btn-google svg { width: 20px; height: 20px; flex: none; }
+.cfg__aba-box { display: grid; gap: 8px; margin-top: 22px; }
+.cfg__aba-box label { color: var(--mute); }
+#erro { margin-top: 10px; }
