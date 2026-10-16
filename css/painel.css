@@ -186,7 +186,7 @@ h1, h2, h3, p { margin: 0; }
   flex: 1; min-width: 0; padding: 14px 16px; border-radius: 12px; background: var(--ink); border: 1px dashed var(--y);
   font-family: var(--f-mono); font-size: 13px; color: var(--y); overflow-wrap: anywhere;
 }
-.cfg__robo .btn { padding: 14px 18px; flex: none; }
+.cfg__robo .btn { width: auto; margin-top: 0; padding: 14px 18px; flex: none; }
 .cfg__aviso { color: var(--red) !important; margin-top: 10px; }
 .cfg form { margin-top: 12px; }
 .cfg select {
