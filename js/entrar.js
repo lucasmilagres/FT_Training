@@ -12,6 +12,11 @@
 
   try { campoEmail.value = localStorage.getItem('ft-coach-email') || ''; } catch (e) {}
 
+  // "Entrar com Google": volta para a mesma página depois do login
+  $('#entrar-google').href = '/api/google/conectar?login=1&volta=' + encodeURIComponent(volta);
+  var erroGoogle = new URLSearchParams(location.search).get('erro');
+  if (erroGoogle) $('#erro-google').textContent = erroGoogle;
+
   function post(url, dados) {
     return fetch(url, {
       method: 'POST',

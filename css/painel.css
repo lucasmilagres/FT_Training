@@ -77,6 +77,11 @@ h1, h2, h3, p { margin: 0; }
 .login__alt { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; margin-top: 4px; }
 .login__voltar { margin-top: 26px; font-size: 14px; color: var(--mute); text-decoration: none; display: inline-block; }
 .login__voltar:hover { color: var(--y); }
+.login .btn-google { margin-top: 0; }
+#erro-google:empty { display: none; }
+#erro-google { margin-top: 10px; }
+.login__ou { display: flex; align-items: center; gap: 12px; margin: 22px 0 18px; color: var(--mute); font-size: 11px; }
+.login__ou::before, .login__ou::after { content: ""; flex: 1; height: 1px; background: var(--line-2); }
 .login__legal { margin-top: 14px; color: var(--mute); font-size: 11px; }
 .login__legal a { color: inherit; text-decoration: none; }
 .login__legal a:hover { color: var(--y); }

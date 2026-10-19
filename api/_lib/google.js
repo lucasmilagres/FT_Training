@@ -86,10 +86,11 @@ async function trocarCodigo(codigo, redirect) {
   const { r, j } = await postToken({ code: codigo, client_id: c.id, client_secret: c.segredo, redirect_uri: redirect, grant_type: 'authorization_code' });
   if (!r.ok) throw erro(502, 'O Google não confirmou o login: ' + (j.error_description || j.error || r.status));
   if (!j.refresh_token) throw erro(502, 'O Google não liberou acesso contínuo. Tente conectar de novo.');
-  let email = '';
-  try { email = JSON.parse(Buffer.from(j.id_token.split('.')[1], 'base64url').toString()).email || ''; } catch (e) {}
+  // id_token veio direto do Google (HTTPS, troca com a chave secreta), então dá para confiar no e-mail
+  let perfil = {};
+  try { perfil = JSON.parse(Buffer.from(j.id_token.split('.')[1], 'base64url').toString()); } catch (e) {}
   tokensConta.set(j.refresh_token, { valor: j.access_token, expira: Date.now() + j.expires_in * 1000 });
-  return { refresh: j.refresh_token, email };
+  return { refresh: j.refresh_token, email: String(perfil.email || '').toLowerCase(), verificado: perfil.email_verified === true };
 }
 
 async function acessoConta(refresh) {
