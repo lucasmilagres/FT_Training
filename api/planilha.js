@@ -19,6 +19,21 @@ module.exports = async function (req, res) {
   let robo;
   try { robo = google.emailRobo(); } catch (e) { return json(res, 500, { erro: e.message }); }
 
+  // Diagnóstico temporário: baixa a aba ligada (valores + cores) para ajustar o leitor ao formato da planilha
+  if (req.method === 'GET' && new URL(req.url, 'http://x').searchParams.get('exportar') === '1') {
+    try {
+      const cfg = await lerConfig();
+      if (!cfg) return json(res, 404, { erro: 'Nenhuma planilha ligada.' });
+      const conta = cfg.modo === 'google' ? await lerConta() : undefined;
+      const dados = await google.info(cfg.id, conta);
+      const g = await google.grade(cfg.id, cfg.aba, conta);
+      res.setHeader('Content-Disposition', 'attachment; filename="planilha-ft.json"');
+      return json(res, 200, { nome: dados.nome, abas: dados.abas.map((a) => a.nome), aba: cfg.aba, hoje: hojeISO(), grade: g });
+    } catch (e) {
+      return json(res, e.status || 502, { erro: e.message });
+    }
+  }
+
   if (req.method === 'GET') {
     let config = null;
     try { config = await lerConfig(); } catch (e) { console.error('config:', e.message); }

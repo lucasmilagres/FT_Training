@@ -150,7 +150,17 @@ async function linhas(id, aba, conta) {
   return j.values || [];
 }
 
+// Valores + cor de fundo de cada célula (para achar as linhas de título coloridas)
+async function grade(id, aba, conta) {
+  const faixa = encodeURIComponent(`'${String(aba).replace(/'/g, "''")}'!A1:Z1000`);
+  const campos = encodeURIComponent('sheets(data(rowData(values(formattedValue,effectiveFormat(backgroundColor)))))');
+  const j = await sheets(`${encodeURIComponent(id)}?ranges=${faixa}&fields=${campos}`, conta);
+  const rows = (((j.sheets || [])[0] || {}).data || [{}])[0].rowData || [];
+  const hex = (c) => c ? '#' + ['red', 'green', 'blue'].map((k) => Math.round((c[k] || 0) * 255).toString(16).padStart(2, '0')).join('') : '';
+  return rows.map((r) => (r.values || []).map((v) => ({ v: v.formattedValue || '', cor: hex(v.effectiveFormat && v.effectiveFormat.backgroundColor) })));
+}
+
 module.exports = {
-  emailRobo, lerLink, info, linhas,
+  emailRobo, lerLink, info, linhas, grade,
   clienteOAuth, appId, urlLogin, trocarCodigo, acessoConta, revogar
 };
