@@ -80,10 +80,18 @@
   }
 
   function mostrarPrevia(p) {
-    var r = p.datas
-      ? p.datas + ' treinos com data encontrados (coluna "' + p.colunaData + '").'
-      : 'Não achei nenhuma coluna com datas. A planilha precisa de uma coluna "Data" (ex.: 15/10/2026).';
-    if (p.colunas && p.colunas.length) r += ' Colunas: ' + p.colunas.join(' · ') + '.';
+    var r;
+    if (p.formato === 'semanal') {
+      // abas por mês, um bloco por semana, uma coluna por dia
+      r = 'Formato reconhecido: uma aba por mês, um bloco por semana e uma coluna por dia (segunda a sexta).';
+      if (p.onde && p.onde.aba) r += ' Hoje (' + p.onde.dia + ') está na semana ' + p.onde.semana + ' da aba "' + p.onde.aba + '".';
+      else r += ' A semana de hoje ainda não está na planilha.';
+    } else {
+      r = p.datas
+        ? p.datas + ' treinos com data encontrados (coluna "' + p.colunaData + '").'
+        : 'Não achei nenhuma coluna com datas. A planilha precisa de uma coluna "Data" (ex.: 15/10/2026).';
+      if (p.colunas && p.colunas.length) r += ' Colunas: ' + p.colunas.join(' · ') + '.';
+    }
     $('#resumo').textContent = r;
 
     var box = $('#previa-treinos');
@@ -100,7 +108,8 @@
         });
       });
     } else {
-      box.appendChild(el('p', 'cfg__vazio', 'Nenhum treino com a data de hoje (' + dataBR(p.hoje) + ').' +
+      box.appendChild(el('p', 'cfg__vazio', p.aviso ? 'Hoje (' + dataBR(p.hoje) + '): ' + p.aviso :
+        'Nenhum treino com a data de hoje (' + dataBR(p.hoje) + ').' +
         (p.proxima ? ' Próximo treino na planilha: ' + dataBR(p.proxima) + '.' : '')));
     }
     $('#previa').hidden = false;

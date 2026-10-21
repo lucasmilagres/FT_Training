@@ -6,8 +6,8 @@
 const { usuario, json } = require('./_lib/sessao');
 const google = require('./_lib/google');
 const { lerConfig, salvarConfig, apagarConfig, lerConta } = require('./_lib/config');
-const { hojeISO, treinosDoDia, resumo } = require('./_lib/planilha');
-const { limparCache } = require('./_lib/fonte');
+const { hojeISO, resumo } = require('./_lib/planilha');
+const { limparCache, treinosDaData } = require('./_lib/fonte');
 
 module.exports = async function (req, res) {
   let email;
@@ -18,21 +18,6 @@ module.exports = async function (req, res) {
 
   let robo;
   try { robo = google.emailRobo(); } catch (e) { return json(res, 500, { erro: e.message }); }
-
-  // Diagnóstico temporário: baixa a aba ligada (valores + cores) para ajustar o leitor ao formato da planilha
-  if (req.method === 'GET' && new URL(req.url, 'http://x').searchParams.get('exportar') === '1') {
-    try {
-      const cfg = await lerConfig();
-      if (!cfg) return json(res, 404, { erro: 'Nenhuma planilha ligada.' });
-      const conta = cfg.modo === 'google' ? await lerConta() : undefined;
-      const dados = await google.info(cfg.id, conta);
-      const g = await google.grade(cfg.id, cfg.aba, conta);
-      res.setHeader('Content-Disposition', 'attachment; filename="planilha-ft.json"');
-      return json(res, 200, { nome: dados.nome, abas: dados.abas.map((a) => a.nome), aba: cfg.aba, hoje: hojeISO(), grade: g });
-    } catch (e) {
-      return json(res, e.status || 502, { erro: e.message });
-    }
-  }
 
   if (req.method === 'GET') {
     let config = null;
@@ -64,19 +49,23 @@ module.exports = async function (req, res) {
     const dados = await google.info(link.id, conta);
     const pedida = req.body && req.body.aba;
     const aba = dados.abas.find((a) => a.nome === pedida) || dados.abas.find((a) => a.id === link.gid) || dados.abas[0];
-    const linhas = await google.linhas(link.id, aba.nome, conta);
     const hoje = hojeISO();
 
     const config = { id: link.id, url, nome: dados.nome, aba: aba.nome, modo, salvoEm: new Date().toISOString() };
     await salvarConfig(config);
     limparCache();
 
+    // Prévia: o que a TV vai mostrar hoje (formato semanal por abas de mês, ou por coluna de data)
+    const r = await treinosDaData(hoje);
+    const previa = { hoje, treinos: r.treinos, aviso: r.aviso, onde: r.onde, formato: r.formato };
+    if (r.formato === 'datas') Object.assign(previa, resumo(r.linhas, hoje));
+
     return json(res, 200, {
       ok: true,
       robo,
       config: { url, nome: config.nome, aba: config.aba, modo, salvoEm: config.salvoEm },
-      abas: dados.abas.map((a) => a.nome),
-      previa: { hoje, treinos: treinosDoDia(linhas, hoje), ...resumo(linhas, hoje) }
+      abas: r.formato === 'datas' ? dados.abas.map((a) => a.nome) : [],
+      previa
     });
   } catch (e) {
     console.error('planilha:', e.message);

@@ -71,8 +71,9 @@
 
     if (!treinos.length) {
       var v = el('div', 'tv__vazio');
-      v.appendChild(el('h2', null, iso === r.hoje ? 'Treino de hoje ainda não foi lançado' : 'Nenhum treino nesta data'));
-      v.appendChild(el('p', 'mono', 'Procurando ' + fmt(iso, { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' na planilha'));
+      // aviso vem da própria planilha (ex.: "FERIADO NOSSA SENHORA") ou é fim de semana
+      v.appendChild(el('h2', null, r.aviso || (iso === r.hoje ? 'Treino de hoje ainda não foi lançado' : 'Nenhum treino nesta data')));
+      if (!r.aviso) v.appendChild(el('p', 'mono', 'Procurando ' + fmt(iso, { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' na planilha'));
       quadro.appendChild(v);
       ajustar();
       return;
@@ -105,9 +106,30 @@
   function transborda() {
     if (quadro.scrollHeight > quadro.clientHeight + 1) return true;
     var bs = quadro.querySelectorAll('.bloco');
-    for (var i = 0; i < bs.length; i++) if (bs[i].scrollHeight > bs[i].clientHeight + 1) return true;
+    for (var i = 0; i < bs.length; i++) {
+      if (bs[i].scrollHeight > bs[i].clientHeight + 1) return true;
+      // palavra maior que a largura do quadro: a letra está grande demais (evita "ERGOMET/RO")
+      var p = bs[i].querySelector('p');
+      if (p && maiorPalavra(p) > p.clientWidth + 1) return true;
+    }
     return false;
   }
+  // largura da maior palavra do parágrafo (medida com a fonte atual)
+  var regua = null;
+  function maiorPalavra(p) {
+    if (!regua) { regua = document.createElement('span'); regua.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;left:-9999px;top:0'; document.body.appendChild(regua); }
+    var cs = getComputedStyle(p);
+    regua.style.font = cs.font;
+    regua.style.letterSpacing = cs.letterSpacing;
+    var maior = 0, palavras = p.textContent.split(/\s+/);
+    for (var i = 0; i < palavras.length; i++) {
+      if (!palavras[i]) continue;
+      regua.textContent = palavras[i];
+      if (regua.offsetWidth > maior) maior = regua.offsetWidth;
+    }
+    return maior;
+  }
+
   function ajustar() {
     var corpo = document.body.style;
     if (!modoTV.matches) { corpo.removeProperty('--fs'); return; }

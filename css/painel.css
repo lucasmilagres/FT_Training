@@ -123,7 +123,7 @@ h1, h2, h3, p { margin: 0; }
   color: var(--y); margin-bottom: .5em;
 }
 .bloco h3::before { content: "+ "; }
-.bloco p { white-space: pre-line; overflow-wrap: anywhere; line-height: 1.28; font-weight: 600; }
+.bloco p { white-space: pre-line; overflow-wrap: break-word; line-height: 1.28; font-weight: 600; }
 .tv__modalidade {
   font-family: var(--f-display); font-weight: 900; font-style: italic; text-transform: uppercase;
   font-size: 1.15em; line-height: 1; color: var(--bone); display: flex; align-items: center; gap: .4em;
