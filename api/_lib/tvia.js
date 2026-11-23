@@ -128,8 +128,9 @@ const palavras = (s) => new Set(semAcento(s).match(/[A-Z]{3,}/g) || []);
 // palavras que a IA pode trocar por formato/rótulos sem perder conteúdo
 const LIVRES = new Set(['TITULO', 'AVISO', 'ROUNDS', 'ROUND', 'CAP', 'ESTACAO', 'MAX', 'REP', 'REPS']);
 
-function textoDaIA(ia) {
-  return [ia.titulo, ia.aviso].concat(...ia.partes.map((p) => [p.nome, p.formato, p.nota].concat(...p.itens.map((i) => [i.qtd, i.texto, i.nota])))).join(' ');
+// comNomes = false: sem os nomes das partes ("Parte 1", "Estação 2" são só rótulos, não entram na conferência de números)
+function textoDaIA(ia, comNomes = true) {
+  return [ia.titulo, ia.aviso].concat(...ia.partes.map((p) => [comNomes ? p.nome : '', p.formato, p.nota].concat(...p.itens.map((i) => [i.qtd, i.texto, i.nota])))).join(' ');
 }
 
 function conferir(fonte, ia) {
@@ -137,7 +138,7 @@ function conferir(fonte, ia) {
   const original = textoDaFonte(fonte);
   const gerado = textoDaIA(ia);
   const numsFonte = numeros(original);
-  const inventados = [...numeros(gerado)].filter((n) => !numsFonte.has(n) && !numsFonte.has(n.replace(',', '.')) && !numsFonte.has(n.replace('.', ',')));
+  const inventados = [...numeros(textoDaIA(ia, false))].filter((n) => !numsFonte.has(n) && !numsFonte.has(n.replace(',', '.')) && !numsFonte.has(n.replace('.', ',')));
   if (inventados.length) alertas.push('Números que não estão na planilha: ' + inventados.join(', '));
   const doGerado = palavras(gerado);
   const faltando = [...palavras(original)].filter((p) => !LIVRES.has(p) && !doGerado.has(p));
