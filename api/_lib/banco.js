@@ -11,11 +11,22 @@ function cfg() {
   return url && chave ? { url, chave } : null;
 }
 
+// A chave pública (publishable/anon) não enxerga nada no banco, de propósito.
+// Se ela for colada no lugar da secreta, avisa em vez de dar "permission denied".
+function chavePublica(chave) {
+  if (chave.startsWith('sb_publishable_')) return true;
+  if (chave.startsWith('eyJ')) {
+    try { return JSON.parse(Buffer.from(chave.split('.')[1], 'base64url').toString()).role === 'anon'; } catch (e) { return false; }
+  }
+  return false;
+}
+
 const configurado = () => !!cfg();
 
 async function rest(caminho, { method = 'GET', corpo, prefer } = {}) {
   const c = cfg();
   if (!c) throw erro(503, 'Banco de dados ainda não configurado no servidor (SUPABASE_URL e SUPABASE_SECRET_KEY).');
+  if (chavePublica(c.chave)) throw erro(503, 'SUPABASE_SECRET_KEY está com a chave pública do Supabase. Use a Secret key (sb_secret_...).');
   const headers = { apikey: c.chave, Accept: 'application/json' };
   // Chave nova (sb_secret_...) vai só no "apikey"; a antiga (JWT service_role) também no Authorization
   if (!c.chave.startsWith('sb_')) headers.Authorization = 'Bearer ' + c.chave;
