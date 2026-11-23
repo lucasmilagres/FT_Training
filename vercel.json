@@ -1,5 +1,8 @@
 {
   "cleanUrls": true,
+  "functions": {
+    "api/coach.js": { "maxDuration": 60 }
+  },
   "headers": [
     {
       "source": "/(entrar|treinos|planilha|aluno|coach|app|api/.*)",

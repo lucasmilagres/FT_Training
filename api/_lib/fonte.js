@@ -30,7 +30,8 @@ async function comCache(chave, ler) {
 
 // Treinos de uma data (AAAA-MM-DD) → { treinos, aviso, onde, formato }
 async function treinosDaData(data) {
-  const cfg = await lerConfig();
+  // TREINOS_PLANILHA_ID (opcional): id da planilha lida pelo robô quando nenhuma foi ligada em /planilha (útil para testar local)
+  const cfg = (await lerConfig()) || (process.env.TREINOS_PLANILHA_ID ? { id: process.env.TREINOS_PLANILHA_ID, modo: 'robo' } : null);
 
   if (cfg && cfg.id) {
     let conta;

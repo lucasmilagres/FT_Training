@@ -3,6 +3,7 @@
 const { usuario, json } = require('./_lib/sessao');
 const { hojeISO } = require('./_lib/planilha');
 const { treinosDaData } = require('./_lib/fonte');
+const { aplicarNaTV } = require('./_lib/tvia');
 
 module.exports = async function (req, res) {
   let email;
@@ -18,6 +19,8 @@ module.exports = async function (req, res) {
   try { r = await treinosDaData(data); } catch (e) {
     return json(res, e.status || 502, { erro: e.status === 503 ? e.message : 'Não consegui ler a planilha agora: ' + e.message, semPlanilha: e.status === 503 });
   }
+  // versão organizada pela IA e aprovada pelo coach, se a planilha do dia não mudou depois
+  r = await aplicarNaTV(data, r);
 
-  return json(res, 200, { data, hoje: hojeISO(), treinos: r.treinos, aviso: r.aviso, onde: r.onde });
+  return json(res, 200, { data, hoje: hojeISO(), treinos: r.treinos, aviso: r.aviso, onde: r.onde, ia: !!r.ia });
 };

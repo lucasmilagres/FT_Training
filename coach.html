@@ -34,6 +34,7 @@
   <nav class="coach__abas" aria-label="Seções">
     <a href="#alunos" data-aba="alunos">Alunos</a>
     <a href="#templates" data-aba="templates">Treinos</a>
+    <a href="#tv" data-aba="tv">TV</a>
   </nav>
 
   <main class="coach__main">
@@ -113,6 +114,26 @@
         <a class="btn btn--yellow" href="#template/novo">+ Novo treino</a>
       </div>
       <ul class="linhas linhas--templates" id="templates"></ul>
+    </section>
+
+    <!-- ================= TV (planilha × IA) ================= -->
+    <section id="v-tv" class="vista" hidden>
+      <div class="card__topo">
+        <div>
+          <h2 class="titulo">Treinos na TV</h2>
+          <p class="card__ajuda">A IA organiza o treino da planilha em partes e exercícios. Confira cada dia e aprove: só o que for aprovado aparece no layout novo da TV. Se a planilha mudar depois, a TV volta a mostrar a planilha até você ler e aprovar de novo.</p>
+        </div>
+        <button class="btn btn--yellow" id="tv-ler" type="button">Ler a semana com IA</button>
+      </div>
+      <nav class="coach__semana">
+        <button class="btn btn--ghost" id="tv-ant" type="button" aria-label="Semana anterior">‹</button>
+        <div><p class="mono" id="tv-rotulo"></p><p class="aluno__periodo" id="tv-periodo"></p></div>
+        <button class="btn btn--ghost" id="tv-prox" type="button" aria-label="Próxima semana">›</button>
+      </nav>
+      <div class="tv-dias" id="tv-dias"></div>
+      <div class="coach__acoes">
+        <button class="btn btn--ghost" id="tv-aprovar-todos" type="button" hidden>Aprovar todos sem alerta</button>
+      </div>
     </section>
 
     <!-- ================= EDITOR DE TEMPLATE ================= -->

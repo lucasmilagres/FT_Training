@@ -5,12 +5,17 @@
 //   GET  ?acao=resumo
 //   GET  ?acao=semana&aluno=ID&semana=AAAA-MM-DD
 //   GET  ?acao=template&id=ID
+//   GET  ?acao=tv&semana=AAAA-MM-DD   (treinos da TV: planilha × versão da IA)
 //   POST { acao: convidar | cancelar_convite | liberar | desativar | salvar_template |
-//          arquivar_template | agendar | remover_treino | copiar_semana, ... }
+//          arquivar_template | agendar | remover_treino | copiar_semana |
+//          tv_ler | tv_aprovar | tv_descartar, ... }
 const { sessaoEmail, emailsLiberados, json } = require('./_lib/sessao');
 const { hojeISO } = require('./_lib/planilha');
 const { dataOk, somaDias, segunda, diasEntre } = require('./_lib/datas');
 const banco = require('./_lib/banco');
+const tvia = require('./_lib/tvia');
+const gemini = require('./_lib/gemini');
+const { treinosDaData } = require('./_lib/fonte');
 
 const MODALIDADES = ['musculacao', 'corrida', 'hyrox', 'outro'];
 const PAPEIS = ['admin', 'coach', 'aluno'];
@@ -135,8 +140,58 @@ async function template(id) {
   return { template: t };
 }
 
+// ---------- TV: semana da planilha + versão organizada pela IA ----------
+async function tvSemana(pedida) {
+  const de = segunda(dataOk(pedida) ? pedida : hojeISO());
+  const dias = await tvia.semanaDaPlanilha(de);
+  const salvos = await tvia.salvos(dias.map((d) => d.data));
+  return {
+    hoje: hojeISO(), semana: { de, ate: somaDias(de, 4) }, iaConfigurada: gemini.configurado(),
+    dias: dias.map((d) => {
+      const s = salvos[d.data];
+      return {
+        data: d.data, erro: d.erro || null, fonte: d.fonte || null, temTreino: !!(d.fonte && tvia.temTreino(d.fonte)),
+        salvo: s ? {
+          status: s.status, ia: s.ia, alertas: s.alertas || [], modelo: s.modelo,
+          gerado_em: s.gerado_em, aprovado_em: s.aprovado_em, valido: s.hash === d.hash
+        } : null
+      };
+    })
+  };
+}
+
 // ---------- ações ----------
 const acoes = {
+  async tv_ler(eu, b) {
+    const de = segunda(dataOk(b.semana) ? b.semana : hojeISO());
+    const dias = await tvia.semanaDaPlanilha(de);
+    const resultado = await tvia.organizar(dias);
+    const lidos = await tvia.salvarRascunhos(dias, resultado);
+    return { ...(await tvSemana(de)), lidos };
+  },
+
+  async tv_aprovar(eu, b) {
+    const datas = (Array.isArray(b.datas) ? b.datas : [b.data]).filter(dataOk).slice(0, 7);
+    if (!datas.length) throw falha(400, 'Escolha o dia.');
+    const salvos = await tvia.salvos(datas);
+    for (const data of datas) {
+      const s = salvos[data];
+      if (!s || !s.ia) throw falha(404, 'Esse dia ainda não foi lido pela IA.');
+      // a planilha pode ter mudado depois da leitura: aí precisa ler de novo
+      const atual = tvia.hashDe(tvia.fonteDe(await treinosDaData(data)));
+      if (atual !== s.hash) throw falha(409, 'A planilha mudou depois da leitura. Leia a semana de novo.');
+    }
+    await banco.atualizar('tv_dias', 'data=in.(' + datas.join(',') + ')',
+      { status: 'aprovado', aprovado_em: new Date().toISOString(), aprovado_por: eu.id });
+    return { ok: true, aprovados: datas.length };
+  },
+
+  async tv_descartar(eu, b) {
+    if (!dataOk(b.data)) throw falha(400, 'Data inválida.');
+    await banco.apagar('tv_dias', 'data=eq.' + b.data);
+    return { ok: true };
+  },
+
   async convidar(eu, b) {
     const email = texto(b.email, 200).toLowerCase();
     if (!emailOk(email)) throw falha(400, 'Digite um e-mail válido (o da conta Google do aluno).');
@@ -258,6 +313,7 @@ module.exports = async function (req, res) {
       if (acao === 'resumo') return json(res, 200, await resumo(eu));
       if (acao === 'semana') return json(res, 200, await semanaDoAluno(eu, p.get('aluno'), p.get('semana')));
       if (acao === 'template') return json(res, 200, await template(p.get('id')));
+      if (acao === 'tv') return json(res, 200, await tvSemana(p.get('semana')));
       return json(res, 400, { erro: 'Ação desconhecida.' });
     }
     if (req.method === 'POST') {

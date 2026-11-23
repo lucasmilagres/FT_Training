@@ -429,6 +429,158 @@
     }).catch(erro);
   });
 
+  // ---------- TV: planilha × versão organizada pela IA ----------
+  var semanaTV = null;   // segunda-feira mostrada; null = semana atual
+  var ultimaTV = null;
+
+  function textoFonte(f) {
+    if (!f) return '';
+    var partes = [];
+    if (f.aviso) partes.push(f.aviso);
+    f.treinos.forEach(function (t) {
+      t.blocos.forEach(function (b) { partes.push((b.titulo ? b.titulo + '\n' : '') + b.texto); });
+    });
+    return partes.join('\n\n');
+  }
+
+  // prévia no mesmo estilo da TV (classes .bloco--ia)
+  function previaIA(ia) {
+    var box = el('div', 'tv-previa');
+    if (!ia.partes.length) { box.appendChild(el('p', 'linhas__vazio', ia.aviso || 'Sem exercícios.')); return box; }
+    ia.partes.forEach(function (p) {
+      var s = el('section', 'bloco bloco--ia');
+      if (p.nome) s.appendChild(el('h3', null, p.nome));
+      if (p.formato) s.appendChild(el('p', 'bloco__formato', p.formato));
+      var ul = el('ul', 'bloco__itens');
+      p.itens.forEach(function (i) {
+        var li = el('li');
+        if (i.qtd) li.appendChild(el('span', 'bloco__qtd', i.qtd));
+        var t = el('span', 'bloco__exercicio', i.texto || '');
+        if (i.nota) t.appendChild(el('small', null, i.nota));
+        li.appendChild(t);
+        ul.appendChild(li);
+      });
+      s.appendChild(ul);
+      if (p.nota) s.appendChild(el('p', 'bloco__nota', p.nota));
+      box.appendChild(s);
+    });
+    return box;
+  }
+
+  function situacao(d) {
+    var s = d.salvo;
+    if (d.erro) return ['Erro ao ler a planilha', 'alerta'];
+    if (!d.temTreino) return [s && s.valido && s.status === 'aprovado' ? 'Aprovado' : 'Sem treino na planilha', ''];
+    if (!s) return ['Ainda não lido pela IA', ''];
+    if (!s.valido) return ['A planilha mudou: leia de novo', 'alerta'];
+    if (s.status === 'aprovado') return ['Aprovado · na TV', 'ok'];
+    if (s.alertas && s.alertas.length) return ['Revisar antes de aprovar', 'alerta'];
+    return ['Pronto para aprovar', ''];
+  }
+
+  function desenharTV(j) {
+    ultimaTV = j;
+    semanaTV = j.semana.de;
+    var atual = j.semana.de <= j.hoje && j.hoje <= somaDias(j.semana.de, 6);
+    $('#tv-rotulo').textContent = atual ? 'Esta semana' : (j.semana.de > j.hoje ? 'Próxima' : 'Anterior');
+    $('#tv-periodo').textContent = curta(j.semana.de) + ' – ' + curta(j.semana.ate);
+    var ler = $('#tv-ler');
+    ler.disabled = !j.iaConfigurada;
+    ler.title = j.iaConfigurada ? '' : 'A IA ainda não foi configurada no servidor (GEMINI_API_KEY).';
+
+    var lista = $('#tv-dias');
+    lista.textContent = '';
+    if (!j.iaConfigurada) lista.appendChild(el('p', 'coach__msg coach__msg--erro', 'A IA ainda não foi configurada no servidor (GEMINI_API_KEY). A TV continua mostrando a planilha normalmente.'));
+
+    var aprovaveis = [];
+    j.dias.forEach(function (d) {
+      var s = d.salvo;
+      var sit = situacao(d);
+      var card = el('article', 'card tv-dia');
+      var topo = el('div', 'card__topo');
+      var tit = el('div');
+      var t0 = d.fonte && d.fonte.treinos[0];
+      tit.appendChild(el('h2', null, DIAS[dt(d.data).getUTCDay()] + ' ' + curta(d.data)));
+      tit.appendChild(el('p', 'card__ajuda', (t0 && t0.titulo) || (d.fonte && d.fonte.aviso) || ''));
+      topo.appendChild(tit);
+      topo.appendChild(el('span', 'pilula' + (sit[1] === 'alerta' ? ' pilula--alerta' : sit[1] === 'ok' ? ' pilula--ok' : ''), sit[0]));
+      card.appendChild(topo);
+
+      if (d.erro) { card.appendChild(el('p', 'card__ajuda', d.erro)); lista.appendChild(card); return; }
+
+      var lados = el('div', 'tv-lados');
+      var esq = el('div', 'tv-lado');
+      esq.appendChild(el('p', 'mono tv-lado__rotulo', 'Na planilha'));
+      esq.appendChild(el('pre', 'tv-fonte', textoFonte(d.fonte) || '(vazio)'));
+      lados.appendChild(esq);
+      var dir = el('div', 'tv-lado');
+      dir.appendChild(el('p', 'mono tv-lado__rotulo', 'Na TV com a IA'));
+      if (s && s.ia) dir.appendChild(previaIA(s.ia));
+      else dir.appendChild(el('p', 'linhas__vazio', d.temTreino ? 'Toque em "Ler a semana com IA".' : 'Nada para organizar.'));
+      lados.appendChild(dir);
+      card.appendChild(lados);
+
+      if (s && s.alertas && s.alertas.length && s.valido) {
+        var al = el('ul', 'tv-alertas');
+        s.alertas.forEach(function (a) { al.appendChild(el('li', null, a)); });
+        card.appendChild(al);
+      }
+
+      var acoesDia = el('div', 'coach__acoes');
+      if (s) {
+        var desc = el('button', 'link mono', s.status === 'aprovado' ? 'Voltar para a planilha' : 'Descartar');
+        desc.type = 'button';
+        desc.addEventListener('click', function () {
+          if (!confirmar(desc)) return;
+          acao('tv_descartar', { data: d.data }).then(function () { abrirTV(); }).catch(erro);
+        });
+        acoesDia.appendChild(desc);
+      }
+      if (s && s.ia && s.valido && s.status !== 'aprovado' && s.ia.partes.length) {
+        var ap = el('button', 'btn btn--yellow btn--sm', s.alertas && s.alertas.length ? 'Aprovar mesmo assim' : 'Aprovar');
+        ap.type = 'button';
+        ap.addEventListener('click', function () {
+          ocupado(ap, true);
+          acao('tv_aprovar', { datas: [d.data] }).then(function () { msg('Aprovado: já aparece assim na TV.', 'ok'); abrirTV(); })
+            .catch(function (e) { erro(e); ocupado(ap, false); });
+        });
+        acoesDia.appendChild(ap);
+        if (!(s.alertas && s.alertas.length)) aprovaveis.push(d.data);
+      }
+      if (acoesDia.children.length) card.appendChild(acoesDia);
+      lista.appendChild(card);
+    });
+
+    var todos = $('#tv-aprovar-todos');
+    todos.hidden = aprovaveis.length < 2;
+    todos.dataset.datas = aprovaveis.join(',');
+  }
+
+  function abrirTV() {
+    var lista = $('#tv-dias');
+    if (!ultimaTV) { lista.textContent = ''; lista.appendChild(el('p', 'linhas__vazio', 'Lendo a planilha…')); }
+    return api('GET', null, '?acao=tv' + (semanaTV ? '&semana=' + semanaTV : '')).then(desenharTV).catch(erro);
+  }
+
+  $('#tv-ant').addEventListener('click', function () { if (semanaTV) { semanaTV = somaDias(semanaTV, -7); abrirTV(); } });
+  $('#tv-prox').addEventListener('click', function () { if (semanaTV) { semanaTV = somaDias(semanaTV, 7); abrirTV(); } });
+  $('#tv-ler').addEventListener('click', function () {
+    var b = this;
+    ocupado(b, true);
+    msg('A IA está lendo a semana. Isso leva uns segundos…');
+    acao('tv_ler', { semana: semanaTV }).then(function (j) {
+      desenharTV(j);
+      msg(j.lidos ? 'Pronto: confira cada dia e aprove.' : 'Nenhum dia com treino para organizar nesta semana.', 'ok');
+    }).catch(erro).then(function () { ocupado(b, false); });
+  });
+  $('#tv-aprovar-todos').addEventListener('click', function () {
+    var b = this, datas = (b.dataset.datas || '').split(',').filter(Boolean);
+    if (!datas.length) return;
+    ocupado(b, true);
+    acao('tv_aprovar', { datas: datas }).then(function () { msg('Dias aprovados: já aparecem assim na TV.', 'ok'); abrirTV(); })
+      .catch(erro).then(function () { ocupado(b, false); });
+  });
+
   // ---------- rotas ----------
   function mostrar(vista, aba) {
     $$('.vista').forEach(function (v) { v.hidden = v.id !== 'v-' + vista; });
@@ -442,6 +594,7 @@
     if ((m = h.match(/^#aluno\/(.+)$/))) { mostrar('aluno', 'alunos'); abrirAluno(m[1]); }
     else if ((m = h.match(/^#template\/(.+)$/))) { mostrar('editor', 'templates'); abrirEditor(m[1]); }
     else if (h === '#templates') { mostrar('templates', 'templates'); desenharTemplates(); }
+    else if (h === '#tv') { mostrar('tv', 'tv'); abrirTV(); }
     else { mostrar('alunos', 'alunos'); desenharAlunos(); }
     window.scrollTo(0, 0);
   }

@@ -54,7 +54,22 @@
   function bloco(b) {
     var s = el('section', 'bloco');
     if (b.titulo) s.appendChild(el('h3', null, b.titulo));
-    s.appendChild(el('p', null, b.texto));
+    if (!b.itens) { s.appendChild(el('p', null, b.texto)); return s; }
+
+    // versão organizada pela IA (aprovada pelo coach): formato em destaque + lista de exercícios
+    s.className = 'bloco bloco--ia';
+    if (b.formato) s.appendChild(el('p', 'bloco__formato', b.formato));
+    var ul = el('ul', 'bloco__itens');
+    b.itens.forEach(function (i) {
+      var li = el('li');
+      if (i.qtd) li.appendChild(el('span', 'bloco__qtd', i.qtd));
+      var t = el('span', 'bloco__exercicio', i.texto || '');
+      if (i.nota) t.appendChild(el('small', null, i.nota));
+      li.appendChild(t);
+      ul.appendChild(li);
+    });
+    s.appendChild(ul);
+    if (b.nota) s.appendChild(el('p', 'bloco__nota', b.nota));
     return s;
   }
 
@@ -109,8 +124,10 @@
     for (var i = 0; i < bs.length; i++) {
       if (bs[i].scrollHeight > bs[i].clientHeight + 1) return true;
       // palavra maior que a largura do quadro: a letra está grande demais (evita "ERGOMET/RO")
-      var p = bs[i].querySelector('p');
-      if (p && maiorPalavra(p) > p.clientWidth + 1) return true;
+      var ps = bs[i].querySelectorAll('p, .bloco__exercicio');
+      for (var k = 0; k < ps.length; k++) {
+        if (maiorPalavra(ps[k]) > ps[k].clientWidth + 1) return true;
+      }
     }
     return false;
   }
@@ -168,7 +185,7 @@
         if (!r.ok) throw new Error(j.erro || 'Erro ' + r.status);
         hojeServidor = j.hoje;
         desenhar(j);
-        status('Planilha lida às ' + horaAgora() + ' · atualiza a cada 5 min');
+        status('Planilha lida às ' + horaAgora() + (j.ia ? ' · organizado pela IA' : '') + ' · atualiza a cada 5 min');
         if (!dataVista) { try { localStorage.setItem(CACHE, JSON.stringify(j)); } catch (e) {} }
       });
     }).catch(function (e) {
