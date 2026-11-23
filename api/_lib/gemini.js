@@ -17,12 +17,24 @@ function chave() {
   return k;
 }
 
-async function chamar(caminho, corpo) {
-  const r = await fetch(BASE + caminho, {
-    method: corpo ? 'POST' : 'GET',
-    headers: { 'x-goog-api-key': chave(), ...(corpo ? { 'Content-Type': 'application/json' } : {}) },
-    body: corpo ? JSON.stringify(corpo) : undefined
-  });
+async function chamar(caminho, corpo, limiteMs = 20000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), limiteMs);
+  let r;
+  try {
+    r = await fetch(BASE + caminho, {
+      method: corpo ? 'POST' : 'GET',
+      headers: { 'x-goog-api-key': chave(), ...(corpo ? { 'Content-Type': 'application/json' } : {}) },
+      body: corpo ? JSON.stringify(corpo) : undefined,
+      signal: ctrl.signal
+    });
+  } catch (e) {
+    const x = erro(504, ctrl.signal.aborted ? 'A IA demorou demais para responder.' : 'Não consegui falar com a IA: ' + e.message);
+    x.outroModelo = true;
+    throw x;
+  } finally {
+    clearTimeout(timer);
+  }
   const j = await r.json().catch(() => ({}));
   if (!r.ok) {
     const msg = (j.error && j.error.message) || 'HTTP ' + r.status;
@@ -30,6 +42,7 @@ async function chamar(caminho, corpo) {
     if (r.status === 429) e = erro(429, 'A IA atingiu o limite gratuito por agora. Tente de novo em alguns minutos.');
     else if (r.status === 400 && /api key/i.test(msg)) e = erro(503, 'A chave do Gemini (GEMINI_API_KEY) é inválida.');
     else e = erro(502, 'A IA respondeu com erro: ' + msg);
+    e.semThinking = r.status === 400 && /thinking/i.test(msg); // modelo não aceita desligar o raciocínio
     // sobrecarga ou limite do modelo: vale tentar outro modelo
     e.outroModelo = [429, 500, 503, 504].includes(r.status) || /high demand|overloaded|unavailable/i.test(msg);
     throw e;
@@ -51,9 +64,10 @@ async function modelos() {
     const nomes = (j.models || [])
       .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
       .map((m) => String(m.name || '').replace(/^models\//, ''));
+    // mais novo primeiro; em cada versão, o Flash e logo depois o lite (mais rápido e menos disputado)
     const flash = nomes.filter((n) => versao(n)).sort((a, b) => {
       const x = versao(a), y = versao(b);
-      return x[2] - y[2] || y[0] - x[0] || y[1] - x[1];
+      return y[0] - x[0] || y[1] - x[1] || x[2] - y[2];
     });
     if (nomes.includes('gemini-flash-latest')) flash.push('gemini-flash-latest');
     lista = { nomes: flash, em: Date.now() };
@@ -67,22 +81,38 @@ async function modelos() {
 async function modelo() { return (await modelos())[0]; }
 
 // Pede uma resposta em JSON seguindo "schema" (formato OpenAPI do Gemini).
-// Se um modelo estiver sobrecarregado, tenta o próximo (até 4).
-async function gerarJSON({ instrucoes, texto, schema }) {
-  const corpo = {
+// Se um modelo estiver sobrecarregado ou lento, tenta o próximo, sem passar de ~50 s no total
+// (a função da Vercel tem 60 s).
+async function gerarJSON({ instrucoes, texto, schema, prazoMs = 50000 }) {
+  const corpo = (thinking) => ({
     systemInstruction: { parts: [{ text: instrucoes }] },
     contents: [{ role: 'user', parts: [{ text: texto }] }],
-    generationConfig: { responseMimeType: 'application/json', responseSchema: schema, temperature: 0.1 }
-  };
+    generationConfig: {
+      responseMimeType: 'application/json', responseSchema: schema, temperature: 0.1,
+      // organizar texto não precisa de "raciocínio": desligado, a resposta vem bem mais rápido
+      ...(thinking ? {} : { thinkingConfig: { thinkingBudget: 0 } })
+    }
+  });
+  const fim = Date.now() + prazoMs;
   let ultimoErro = null;
-  for (const nome of (await modelos()).slice(0, 4)) {
+  for (const nome of (await modelos()).slice(0, 5)) {
+    const resta = fim - Date.now();
+    if (resta < 6000) break;
+    const inicio = Date.now();
+    const caminho = `/models/${encodeURIComponent(nome)}:generateContent`;
     let j;
-    try { j = await chamar(`/models/${encodeURIComponent(nome)}:generateContent`, corpo); } catch (e) {
+    try {
+      try { j = await chamar(caminho, corpo(false), Math.min(25000, resta)); } catch (e) {
+        if (!e.semThinking) throw e;
+        j = await chamar(caminho, corpo(true), Math.min(25000, fim - Date.now()));
+      }
+    } catch (e) {
       if (!e.outroModelo) throw e;
-      console.error('gemini', nome, e.message);
+      console.error('gemini', nome, Date.now() - inicio + 'ms', e.message);
       ultimoErro = e;
       continue;
     }
+    console.log('gemini ok', nome, Date.now() - inicio + 'ms');
     const cand = (j.candidates || [])[0];
     const saida = cand && cand.content && (cand.content.parts || []).map((p) => p.text || '').join('');
     if (!saida) throw erro(502, 'A IA não devolveu resposta' + (cand && cand.finishReason ? ' (' + cand.finishReason + ').' : '.'));
