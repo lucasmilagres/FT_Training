@@ -42,7 +42,8 @@ async function chamar(caminho, corpo, limiteMs = 20000) {
     if (r.status === 429) e = erro(429, 'A IA atingiu o limite gratuito por agora. Tente de novo em alguns minutos.');
     else if (r.status === 400 && /api key/i.test(msg)) e = erro(503, 'A chave do Gemini (GEMINI_API_KEY) é inválida.');
     else e = erro(502, 'A IA respondeu com erro: ' + msg);
-    e.semThinking = r.status === 400 && /thinking/i.test(msg); // modelo não aceita desligar o raciocínio
+    // modelo que não aceita desligar o raciocínio (às vezes só diz "invalid argument")
+    e.semThinking = r.status === 400 && !/api key/i.test(msg);
     // sobrecarga ou limite do modelo: vale tentar outro modelo
     e.outroModelo = [429, 500, 503, 504].includes(r.status) || /high demand|overloaded|unavailable/i.test(msg);
     throw e;
@@ -81,9 +82,9 @@ async function modelos() {
 async function modelo() { return (await modelos())[0]; }
 
 // Pede uma resposta em JSON seguindo "schema" (formato OpenAPI do Gemini).
-// Se um modelo estiver sobrecarregado ou lento, tenta o próximo, sem passar de ~50 s no total
-// (a função da Vercel tem 60 s).
-async function gerarJSON({ instrucoes, texto, schema, prazoMs = 50000 }) {
+// Modelo sobrecarregado (recusa rápida): tenta o próximo. Modelo que aceitou o pedido ganha
+// todo o tempo que sobra do prazo (a função da Vercel tem 120 s).
+async function gerarJSON({ instrucoes, texto, schema, prazoMs = 100000 }) {
   const corpo = (thinking) => ({
     systemInstruction: { parts: [{ text: instrucoes }] },
     contents: [{ role: 'user', parts: [{ text: texto }] }],
@@ -102,9 +103,10 @@ async function gerarJSON({ instrucoes, texto, schema, prazoMs = 50000 }) {
     const caminho = `/models/${encodeURIComponent(nome)}:generateContent`;
     let j;
     try {
-      try { j = await chamar(caminho, corpo(false), Math.min(25000, resta)); } catch (e) {
+      try { j = await chamar(caminho, corpo(false), resta); } catch (e) {
         if (!e.semThinking) throw e;
-        j = await chamar(caminho, corpo(true), Math.min(25000, fim - Date.now()));
+        console.error('gemini', nome, 'sem thinkingConfig:', e.message);
+        j = await chamar(caminho, corpo(true), Math.max(1000, fim - Date.now()));
       }
     } catch (e) {
       if (!e.outroModelo) throw e;

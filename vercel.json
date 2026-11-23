@@ -1,7 +1,7 @@
 {
   "cleanUrls": true,
   "functions": {
-    "api/coach.js": { "maxDuration": 60 }
+    "api/coach.js": { "maxDuration": 120 }
   },
   "headers": [
     {

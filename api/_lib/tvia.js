@@ -151,8 +151,8 @@ async function organizar(dias) {
   const comTreino = dias.filter((d) => d.fonte && temTreino(d.fonte));
   if (!comTreino.length) return {};
   const texto = comTreino.map((d) => `=== ${d.data} (${diaDaSemana(d.data)}) ===\n${textoDaFonte(d.fonte)}`).join('\n\n');
-  // 45 s para a IA: sobra tempo para ler a planilha e salvar dentro dos 60 s da função
-  const { modelo, dados } = await gemini.gerarJSON({ instrucoes: INSTRUCOES, texto, schema: SCHEMA, prazoMs: 45000 });
+  // 100 s para a IA: sobra tempo para ler a planilha e salvar dentro dos 120 s da função
+  const { modelo, dados } = await gemini.gerarJSON({ instrucoes: INSTRUCOES, texto, schema: SCHEMA, prazoMs: 100000 });
   const porData = {};
   (Array.isArray(dados && dados.dias) ? dados.dias : []).forEach((d) => { if (d && d.data) porData[String(d.data).slice(0, 10)] = d; });
   const saida = {};
