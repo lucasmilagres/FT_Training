@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Painel do coach | FT Training</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png">
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,800;1,900&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/painel.css">
+</head>
+<body class="coach">
+  <header class="coach__top">
+    <a href="/" aria-label="Site da FT Training"><img class="aluno__logo" src="/assets/brand/ft-logo-sm.webp" alt="FT Training" width="64" height="42"></a>
+    <div>
+      <p class="mono y">+ Painel do coach</p>
+      <h1 id="ola">&nbsp;</h1>
+    </div>
+    <nav class="coach__links">
+      <a class="mono" href="/treinos">TV</a>
+      <button class="link mono" id="sair" type="button">Sair</button>
+    </nav>
+  </header>
+
+  <nav class="coach__abas" aria-label="Seções">
+    <a href="#alunos" data-aba="alunos">Alunos</a>
+    <a href="#templates" data-aba="templates">Treinos</a>
+  </nav>
+
+  <main class="coach__main">
+    <p class="coach__msg" id="msg" role="status" hidden></p>
+
+    <!-- ================= ALUNOS ================= -->
+    <section id="v-alunos" class="vista" hidden>
+      <div class="stats" id="stats"></div>
+
+      <div class="coach__grade">
+        <section class="card">
+          <h2>Convidar</h2>
+          <p class="card__ajuda">Use o e-mail da conta Google da pessoa. No primeiro "Entrar com Google" ela já entra liberada.</p>
+          <form id="f-convidar" class="form" novalidate>
+            <label><span class="mono">E-mail Google</span><input name="email" type="email" required placeholder="aluno@gmail.com" autocomplete="off"></label>
+            <label><span class="mono">Nome</span><input name="nome" placeholder="Como aparece no painel" autocomplete="off"></label>
+            <div class="so-admin form__linha">
+              <label><span class="mono">Papel</span>
+                <select name="papel"><option value="aluno">Aluno</option><option value="coach">Coach</option><option value="admin">Admin</option></select>
+              </label>
+              <label class="so-aluno"><span class="mono">Coach</span><select name="coach_id" class="sel-coach"></select></label>
+            </div>
+            <button class="btn btn--yellow" type="submit">Convidar</button>
+          </form>
+        </section>
+
+        <section class="card so-admin" id="c-pedidos" hidden>
+          <h2>Pedidos de acesso</h2>
+          <p class="card__ajuda">Quem entrou com Google sem convite (ou teve o acesso tirado).</p>
+          <ul class="linhas" id="pedidos"></ul>
+        </section>
+
+        <section class="card" id="c-convites" hidden>
+          <h2>Convites pendentes</h2>
+          <p class="card__ajuda">Ainda não entraram pela primeira vez.</p>
+          <ul class="linhas" id="convites"></ul>
+        </section>
+      </div>
+
+      <section class="card">
+        <div class="card__topo">
+          <h2>Alunos <small id="n-alunos"></small></h2>
+          <input id="busca" type="search" placeholder="Buscar aluno" aria-label="Buscar aluno">
+        </div>
+        <ul class="linhas linhas--alunos" id="alunos"></ul>
+      </section>
+    </section>
+
+    <!-- ================= SEMANA DE UM ALUNO ================= -->
+    <section id="v-aluno" class="vista" hidden>
+      <a class="voltar mono" href="#alunos">← Alunos</a>
+      <div class="card__topo">
+        <div>
+          <h2 class="titulo" id="a-nome"></h2>
+          <p class="card__ajuda" id="a-email"></p>
+        </div>
+        <button class="link mono" id="a-desativar" type="button">Tirar acesso</button>
+      </div>
+      <nav class="coach__semana">
+        <button class="btn btn--ghost" id="a-ant" type="button" aria-label="Semana anterior">‹</button>
+        <div><p class="mono" id="a-rotulo"></p><p class="aluno__periodo" id="a-periodo"></p></div>
+        <button class="btn btn--ghost" id="a-prox" type="button" aria-label="Próxima semana">›</button>
+      </nav>
+      <div class="calendario" id="calendario"></div>
+      <div class="coach__acoes">
+        <button class="btn btn--ghost" id="a-copiar" type="button">Copiar esta semana para a próxima</button>
+      </div>
+    </section>
+
+    <!-- ================= TEMPLATES ================= -->
+    <section id="v-templates" class="vista" hidden>
+      <div class="card__topo">
+        <div>
+          <h2 class="titulo">Treinos</h2>
+          <p class="card__ajuda">Modelos que você aplica nos dias de cada aluno. Mudar um modelo não altera treinos já marcados.</p>
+        </div>
+        <a class="btn btn--yellow" href="#template/novo">+ Novo treino</a>
+      </div>
+      <ul class="linhas linhas--templates" id="templates"></ul>
+    </section>
+
+    <!-- ================= EDITOR DE TEMPLATE ================= -->
+    <section id="v-editor" class="vista" hidden>
+      <a class="voltar mono" href="#templates">← Treinos</a>
+      <form id="f-template" class="form editor" novalidate>
+        <h2 class="titulo" id="e-titulo">Novo treino</h2>
+        <div class="form__linha">
+          <label><span class="mono">Nome *</span><input name="nome" required placeholder="Inferiores 1"></label>
+          <label><span class="mono">Nome técnico</span><input name="nome_tecnico" placeholder="Glúteo e posterior"></label>
+        </div>
+        <div class="form__linha">
+          <label><span class="mono">Modalidade *</span>
+            <select name="modalidade"><option value="musculacao">Musculação</option><option value="corrida">Corrida</option><option value="hyrox">Hyrox</option><option value="outro">Outro</option></select>
+          </label>
+          <label><span class="mono">Tipo</span><input name="tipo" placeholder="Fortalecimento, Tiro, LT1…"></label>
+        </div>
+        <div class="form__linha form__linha--curta">
+          <label><span class="mono">Aquecimento (min)</span><input name="aquecimento_min" type="number" min="0" max="180" inputmode="numeric"></label>
+          <label><span class="mono">Desaquecimento (min)</span><input name="desaquecimento_min" type="number" min="0" max="180" inputmode="numeric"></label>
+        </div>
+
+        <div id="blocos" class="blocos"></div>
+        <button class="btn btn--ghost" type="button" id="add-bloco">+ Bloco</button>
+
+        <label><span class="mono">Observações</span><textarea name="observacoes" rows="3" placeholder="Orientações gerais do treino"></textarea></label>
+
+        <div class="coach__acoes">
+          <button class="link mono" type="button" id="e-arquivar" hidden>Arquivar treino</button>
+          <a class="btn btn--ghost" href="#templates">Cancelar</a>
+          <button class="btn btn--yellow" type="submit">Salvar</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <datalist id="lista-exercicios"></datalist>
+
+  <template id="t-bloco">
+    <fieldset class="bloco-ed">
+      <div class="bloco-ed__topo">
+        <span class="mono">Repetir</span>
+        <input class="bloco-ed__rep" type="number" min="1" max="50" value="1" inputmode="numeric" aria-label="Repetições do bloco">
+        <span class="mono">x</span>
+        <button class="link mono bloco-ed__del" type="button">Remover bloco</button>
+      </div>
+      <div class="bloco-ed__cab mono" aria-hidden="true">
+        <span>Atividade</span><span>Equip.</span><span>Séries</span><span>Reps</span><span>Carga</span><span>Dist. (m)</span><span>Desc. (s)</span><span></span>
+      </div>
+      <div class="bloco-ed__lista"></div>
+      <button class="link mono bloco-ed__add" type="button">+ Atividade</button>
+    </fieldset>
+  </template>
+
+  <template id="t-atividade">
+    <div class="ativ">
+      <label class="ativ__campo ativ__campo--nome"><span class="mono">Atividade</span><input data-k="nome" placeholder="Exercício" list="lista-exercicios"></label>
+      <label class="ativ__campo"><span class="mono">Equip.</span><input data-k="equipamento" placeholder="Equip."></label>
+      <label class="ativ__campo"><span class="mono">Séries</span><input data-k="series" type="number" min="1" placeholder="Séries" inputmode="numeric"></label>
+      <label class="ativ__campo"><span class="mono">Reps</span><input data-k="reps" type="number" min="1" placeholder="Reps" inputmode="numeric"></label>
+      <label class="ativ__campo"><span class="mono">Carga</span><input data-k="carga" placeholder="Carga"></label>
+      <label class="ativ__campo"><span class="mono">Distância (m)</span><input data-k="distancia_m" type="number" min="1" placeholder="Metros" inputmode="numeric"></label>
+      <label class="ativ__campo"><span class="mono">Descanso (s)</span><input data-k="descanso_s" type="number" min="1" placeholder="Seg." inputmode="numeric"></label>
+      <button class="ativ__del" type="button" aria-label="Remover atividade">×</button>
+      <label class="ativ__campo ativ__campo--obs"><span class="mono">Observação</span><input data-k="obs" placeholder="Observação (opcional)"></label>
+    </div>
+  </template>
+
+  <script src="/js/coach.js"></script>
+</body>
+</html>

@@ -65,10 +65,11 @@ function emailsLiberados() {
   return (process.env.TREINOS_EMAILS || '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
 }
 
-function iniciarSessao(res, email) {
+// coach = e-mail de TREINOS_EMAILS (TV e planilha). Aluno também tem sessão, mas sem o aviso "ft_coach".
+function iniciarSessao(res, email, { coach = true } = {}) {
   const t = agora();
   addCookie(res, cookie(SESSAO, selar({ e: email, t, x: t + UM_ANO }), UM_ANO));
-  addCookie(res, cookie(AVISO, '1', UM_ANO, { httpOnly: false }));
+  addCookie(res, cookie(AVISO, coach ? '1' : '', coach ? UM_ANO : 0, { httpOnly: false }));
 }
 
 function encerrarSessao(res) {
@@ -86,6 +87,15 @@ function usuario(req, res) {
   return s.e;
 }
 
+// Qualquer pessoa logada (coach ou aluno): devolve o e-mail ou null.
+// Quem pode o quê é decidido depois, pelo perfil no banco (api/_lib/banco.js).
+function sessaoEmail(req, res) {
+  const s = abrir(lerCookies(req)[SESSAO]);
+  if (!s || s.x < agora()) return null;
+  if (res && agora() - s.t > RENOVAR_APOS) iniciarSessao(res, s.e, { coach: emailsLiberados().includes(s.e) });
+  return s.e;
+}
+
 function json(res, status, dados) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -95,5 +105,5 @@ function json(res, status, dados) {
 
 module.exports = {
   crypto, assina, selar, abrir, iguais, agora, lerCookies, cookie, addCookie,
-  emailsLiberados, iniciarSessao, encerrarSessao, usuario, json
+  emailsLiberados, iniciarSessao, encerrarSessao, usuario, sessaoEmail, json
 };

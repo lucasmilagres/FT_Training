@@ -8,6 +8,8 @@ const crypto = require('crypto');
 
 const ESCOPO_ROBO = 'https://www.googleapis.com/auth/spreadsheets.readonly';
 const ESCOPOS_CONTA = 'openid email https://www.googleapis.com/auth/drive.file';
+// "Entrar com Google" (alunos e equipe): só nome e e-mail, sem Drive e sem acesso contínuo
+const ESCOPOS_LOGIN = 'openid email profile';
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 
 function erro(status, msg) { const e = new Error(msg); e.status = status; return e; }
@@ -56,17 +58,19 @@ function clienteOAuth() {
 // Para o Google Picker: o "app id" é o número do projeto, que é o começo do client id
 const appId = () => (process.env.GOOGLE_CLIENT_ID || '').split('-')[0];
 
-function urlLogin(redirect, state) {
+// login = true: só identifica a pessoa (nome + e-mail).
+// login = false: conecta o Drive do coach (drive.file + refresh token para a TV ler sem novo login).
+function urlLogin(redirect, state, { login = false } = {}) {
   const c = clienteOAuth();
   if (!c) throw erro(503, 'O login com Google ainda não foi configurado no servidor.');
+  const p = login
+    ? { scope: ESCOPOS_LOGIN, prompt: 'select_account' }
+    : { scope: ESCOPOS_CONTA, access_type: 'offline', prompt: 'consent', include_granted_scopes: 'true' };
   return 'https://accounts.google.com/o/oauth2/v2/auth?' + new URLSearchParams({
     client_id: c.id,
     redirect_uri: redirect,
     response_type: 'code',
-    scope: ESCOPOS_CONTA,
-    access_type: 'offline',      // devolve refresh token: a TV continua lendo sem novo login
-    prompt: 'consent',
-    include_granted_scopes: 'true',
+    ...p,
     state
   });
 }
@@ -80,17 +84,22 @@ async function postToken(params) {
   return { r, j: await r.json().catch(() => ({})) };
 }
 
-// Código do retorno do Google → refresh token + e-mail da conta
-async function trocarCodigo(codigo, redirect) {
+// Código do retorno do Google → e-mail e nome da conta (+ refresh token quando é conexão do Drive)
+async function trocarCodigo(codigo, redirect, { login = false } = {}) {
   const c = clienteOAuth();
   const { r, j } = await postToken({ code: codigo, client_id: c.id, client_secret: c.segredo, redirect_uri: redirect, grant_type: 'authorization_code' });
   if (!r.ok) throw erro(502, 'O Google não confirmou o login: ' + (j.error_description || j.error || r.status));
-  if (!j.refresh_token) throw erro(502, 'O Google não liberou acesso contínuo. Tente conectar de novo.');
+  if (!login && !j.refresh_token) throw erro(502, 'O Google não liberou acesso contínuo. Tente conectar de novo.');
   // id_token veio direto do Google (HTTPS, troca com a chave secreta), então dá para confiar no e-mail
   let perfil = {};
   try { perfil = JSON.parse(Buffer.from(j.id_token.split('.')[1], 'base64url').toString()); } catch (e) {}
-  tokensConta.set(j.refresh_token, { valor: j.access_token, expira: Date.now() + j.expires_in * 1000 });
-  return { refresh: j.refresh_token, email: String(perfil.email || '').toLowerCase(), verificado: perfil.email_verified === true };
+  if (j.refresh_token) tokensConta.set(j.refresh_token, { valor: j.access_token, expira: Date.now() + j.expires_in * 1000 });
+  return {
+    refresh: j.refresh_token || null,
+    email: String(perfil.email || '').toLowerCase(),
+    nome: String(perfil.name || '').trim(),
+    verificado: perfil.email_verified === true
+  };
 }
 
 async function acessoConta(refresh) {

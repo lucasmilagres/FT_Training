@@ -1,6 +1,6 @@
 // GET /api/google/conectar → manda para a tela de permissão do Google.
-//   ?login=1&volta=/treinos → "Entrar com Google" na tela /entrar (não precisa estar logado)
-//   sem login=1             → coach já logado conectando a conta Google em /planilha
+//   ?login=1&volta=/treinos → "Entrar com Google" na tela /entrar (alunos e equipe; só nome e e-mail)
+//   sem login=1             → coach já logado conectando o Drive em /planilha (drive.file)
 const { crypto, selar, usuario, cookie, addCookie } = require('../_lib/sessao');
 const google = require('../_lib/google');
 
@@ -24,7 +24,7 @@ module.exports = function (req, res) {
   const state = crypto.randomBytes(24).toString('base64url');
   try {
     addCookie(res, cookie('ft_gstate', selar({ s: state, login, volta }), 10 * 60, { path: '/api/google' }));
-    return ir(res, google.urlLogin(base(req) + '/api/google/retorno', state));
+    return ir(res, google.urlLogin(base(req) + '/api/google/retorno', state, { login }));
   } catch (e) {
     return ir(res, (login ? '/entrar?erro=' : '/planilha?google=erro&msg=') + encodeURIComponent(e.message));
   }

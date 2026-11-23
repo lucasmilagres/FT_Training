@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Meus treinos | FT Training</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png">
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,800;1,900&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/painel.css">
+</head>
+<body class="aluno">
+  <header class="aluno__top">
+    <a href="/" aria-label="Site da FT Training"><img class="aluno__logo" src="/assets/brand/ft-logo-sm.webp" alt="FT Training" width="64" height="42"></a>
+    <div class="aluno__ola">
+      <p class="mono y">+ Meus treinos</p>
+      <h1 id="ola">&nbsp;</h1>
+    </div>
+    <button class="link mono" id="sair" type="button">Sair</button>
+  </header>
+
+  <nav class="aluno__semana" aria-label="Semana">
+    <button class="btn btn--ghost" id="anterior" type="button" aria-label="Semana anterior">‹</button>
+    <div>
+      <p class="mono" id="semana-rotulo">Esta semana</p>
+      <p class="aluno__periodo" id="periodo">&nbsp;</p>
+    </div>
+    <button class="btn btn--ghost" id="proxima" type="button" aria-label="Próxima semana">›</button>
+  </nav>
+
+  <main class="aluno__dias" id="dias" aria-live="polite">
+    <p class="aluno__aviso">Carregando…</p>
+  </main>
+
+  <script src="/js/aluno.js"></script>
+</body>
+</html>

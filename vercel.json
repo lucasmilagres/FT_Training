@@ -2,7 +2,7 @@
   "cleanUrls": true,
   "headers": [
     {
-      "source": "/(entrar|treinos|planilha|api/.*)",
+      "source": "/(entrar|treinos|planilha|aluno|coach|api/.*)",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     }
   ],
