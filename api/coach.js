@@ -16,6 +16,11 @@ const banco = require('./_lib/banco');
 const tvia = require('./_lib/tvia');
 const gemini = require('./_lib/gemini');
 const { treinosDaData } = require('./_lib/fonte');
+const push = require('./_lib/push');
+
+const DIAS_CURTOS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+// "qua 25/11"
+const diaCurto = (iso) => DIAS_CURTOS[new Date(iso + 'T12:00:00Z').getUTCDay()] + ' ' + iso.slice(8, 10) + '/' + iso.slice(5, 7);
 
 const MODALIDADES = ['musculacao', 'corrida', 'hyrox', 'outro'];
 const PAPEIS = ['admin', 'coach', 'aluno'];
@@ -267,6 +272,10 @@ const acoes = {
       nome: t.nome, modalidade: t.modalidade, tipo: t.tipo, estrutura: t.estrutura,
       observacoes: t.observacoes, criado_por: eu.id
     });
+    // só avisa de treino de hoje em diante (marcar dia passado não interessa ao aluno)
+    if (b.data >= hojeISO()) {
+      await push.avisar([aluno.id], { titulo: 'Novo treino', texto: t.nome + ' · ' + diaCurto(b.data), url: '/aluno', tag: 'treino-' + b.data });
+    }
     return { treino: r[0] };
   },
 
@@ -300,6 +309,13 @@ const acoes = {
         observacoes: t.observacoes, criado_por: eu.id
       };
     }));
+    if (somaDias(para, 6) >= hojeISO()) {
+      await push.avisar([aluno.id], {
+        titulo: 'Semana de treinos pronta',
+        texto: origem.length + (origem.length === 1 ? ' treino' : ' treinos') + ' a partir de ' + diaCurto(para),
+        url: '/aluno', tag: 'semana-' + para
+      });
+    }
     return { ok: true, copiados: origem.length };
   }
 };

@@ -2,7 +2,7 @@
    Rede primeiro: com internet, sempre a versão mais nova; sem internet, a última que abriu.
    Só cuida das páginas do app e de GET /api/aluno e /api/coach; o resto do site passa direto.
    Ao sair da conta, a página pede para apagar os dados salvos (mensagem "limpar"). */
-const VERSAO = 'ft-app-v1';
+const VERSAO = 'ft-app-v2';
 const API = 'ft-app-api';
 
 const SHELL = [
@@ -42,6 +42,32 @@ async function redePrimeiro(req, cache, chave) {
     throw erro;
   }
 }
+
+// ---------- notificações ----------
+self.addEventListener('push', (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (x) { d = { texto: e.data ? e.data.text() : '' }; }
+  e.waitUntil(self.registration.showNotification(d.titulo || 'FT Training', {
+    body: d.texto || '',
+    icon: '/assets/brand/icon-192.png',
+    badge: '/assets/brand/favicon-32.png',
+    tag: d.tag || undefined,
+    renotify: !!d.tag,
+    data: { url: d.url || '/app' },
+    lang: 'pt-BR'
+  }));
+});
+
+// toque na notificação: volta para o app (se já estiver aberto) na tela do aviso
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const alvo = new URL((e.notification.data && e.notification.data.url) || '/app', self.location.origin).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((abertas) => {
+    const aqui = abertas.find((c) => new URL(c.url).origin === self.location.origin);
+    if (aqui) return aqui.navigate(alvo).then((c) => (c || aqui).focus()).catch(() => aqui.focus());
+    return self.clients.openWindow(alvo);
+  }));
+});
 
 self.addEventListener('fetch', (e) => {
   const req = e.request;

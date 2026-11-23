@@ -308,7 +308,10 @@ h1, h2, h3, p { margin: 0; }
   font-family: var(--f-display); font-weight: 900; font-style: italic; text-transform: uppercase;
   font-size: clamp(28px, 7vw, 40px); line-height: .95;
 }
-.aluno__acoes { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.aluno__top, .coach__top { flex-wrap: wrap; }
+.aluno__ola { min-width: 0; }
+.aluno__acoes { margin-left: auto; display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 10px 14px; }
+.coach__links { flex-wrap: wrap; justify-content: flex-end; }
 .aluno__top .link { font-size: 12px; }
 .aluno__semana {
   position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -352,6 +355,17 @@ h1, h2, h3, p { margin: 0; }
   color: var(--y); font-size: 11px; cursor: pointer; white-space: nowrap;
 }
 .pwa-instalar:hover { background: var(--y); color: var(--ink); }
+.pwa-avisos {
+  order: -1; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--line-2); background: transparent;
+  color: var(--bone); font-size: 11px; cursor: pointer; white-space: nowrap;
+}
+.pwa-avisos:hover { border-color: var(--y); color: var(--y); }
+.pwa-avisos--ligado { border-color: #2f6b45; color: #4ade80; }
+.pwa-avisos[disabled] { opacity: .6; cursor: progress; }
+@media (max-width: 420px) {
+  .aluno__acoes { gap: 8px; }
+  .pwa-avisos, .pwa-instalar { padding: 7px 9px; font-size: 10px; }
+}
 .pwa-offline {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
   background: var(--y); color: var(--ink); text-align: center; font-size: 11px; font-weight: 700;

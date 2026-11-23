@@ -9,6 +9,7 @@ const { sessaoEmail, json } = require('./_lib/sessao');
 const { hojeISO } = require('./_lib/planilha');
 const banco = require('./_lib/banco');
 const { dataOk, segunda, somaDias } = require('./_lib/datas');
+const push = require('./_lib/push');
 
 function falha(status, msg) { const e = new Error(msg); e.status = status; return e; }
 const uuidOk = (s) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(s || ''));
@@ -32,7 +33,7 @@ async function alunoLogado(req, res) {
 
 async function treinoDoAluno(perfil, id) {
   if (!uuidOk(id)) throw falha(400, 'Treino inválido.');
-  const t = await banco.um('treinos', 'select=id,data&aluno_id=eq.' + perfil.id + '&id=eq.' + id);
+  const t = await banco.um('treinos', 'select=id,data,nome&aluno_id=eq.' + perfil.id + '&id=eq.' + id);
   if (!t) throw falha(404, 'Treino não encontrado.');
   return t;
 }
@@ -65,7 +66,16 @@ const acoes = {
       if (b.consentimento !== true) throw falha(400, 'Para registrar, confirme que concorda com o uso dos seus dados de treino.');
       await banco.atualizar('perfis', 'id=eq.' + perfil.id, { consentimento_saude_em: new Date().toISOString() });
     }
+    const jaTinha = await banco.um('registros', 'select=treino_id&treino_id=eq.' + t.id);
     const r = await banco.upsert('registros', linha, 'treino_id');
+    // avisa o coach só na 1ª vez (editar não repete). Sem o comentário: fica só no painel.
+    if (!jaTinha && perfil.coach_id) {
+      await push.avisar([perfil.coach_id], {
+        titulo: (perfil.nome || 'Aluno').split(' ')[0] + ' treinou ✓',
+        texto: t.nome + (linha.esforco ? ' · esforço ' + linha.esforco + '/10' : '') + (linha.comentario ? ' · deixou um comentário' : ''),
+        url: '/coach#aluno/' + perfil.id, tag: 'feito-' + t.id
+      });
+    }
     return { registro: r[0] || linha };
   },
 
