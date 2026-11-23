@@ -1,0 +1,21 @@
+{
+  "id": "/app",
+  "name": "FT Training",
+  "short_name": "FT Training",
+  "description": "Seus treinos da FT Training e o painel do coach.",
+  "lang": "pt-BR",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    { "src": "/assets/brand/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Meus treinos", "url": "/aluno", "icons": [{ "src": "/assets/brand/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Painel do coach", "url": "/coach", "icons": [{ "src": "/assets/brand/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

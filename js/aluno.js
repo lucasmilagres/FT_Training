@@ -278,7 +278,10 @@
   $('#anterior').addEventListener('click', function () { if (semana) { semana = somaDias(semana, -7); carregar(); } });
   $('#proxima').addEventListener('click', function () { if (semana) { semana = somaDias(semana, 7); carregar(); } });
   $('#sair').addEventListener('click', function () {
-    fetch('/api/auth/sair', { method: 'POST', credentials: 'same-origin' }).then(function () { location.replace('/'); });
+    // apaga também os treinos guardados no aparelho para usar sem internet
+    var limpar = window.ftPwa ? window.ftPwa.limpar() : Promise.resolve();
+    limpar.then(function () { return fetch('/api/auth/sair', { method: 'POST', credentials: 'same-origin' }); })
+      .catch(function () {}).then(function () { location.replace('/'); });
   });
 
   carregar();

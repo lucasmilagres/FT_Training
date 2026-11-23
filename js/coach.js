@@ -461,7 +461,10 @@
   });
 
   $('#sair').addEventListener('click', function () {
-    fetch('/api/auth/sair', { method: 'POST', credentials: 'same-origin' }).then(function () { location.replace('/'); });
+    // apaga também os dados guardados no aparelho para usar sem internet
+    var limpar = window.ftPwa ? window.ftPwa.limpar() : Promise.resolve();
+    limpar.then(function () { return fetch('/api/auth/sair', { method: 'POST', credentials: 'same-origin' }); })
+      .catch(function () {}).then(function () { location.replace('/'); });
   });
 
   carregarResumo().then(rota).catch(function (e) {

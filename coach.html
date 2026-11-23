@@ -6,6 +6,11 @@
   <title>Painel do coach | FT Training</title>
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#0a0a0a">
+  <link rel="manifest" href="/app.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="FT Training">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png">
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,7 +25,7 @@
       <p class="mono y">+ Painel do coach</p>
       <h1 id="ola">&nbsp;</h1>
     </div>
-    <nav class="coach__links">
+    <nav class="coach__links" data-pwa-instalar>
       <a class="mono" href="/treinos">TV</a>
       <button class="link mono" id="sair" type="button">Sair</button>
     </nav>
@@ -176,6 +181,7 @@
     </div>
   </template>
 
+  <script src="/js/pwa.js"></script>
   <script src="/js/coach.js"></script>
 </body>
 </html>
