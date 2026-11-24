@@ -117,7 +117,8 @@
   }
 
   // Maior letra em que o treino inteiro cabe na tela (só na TV/tela deitada)
-  var modoTV = window.matchMedia('(min-width: 900px) and (orientation: landscape)');
+  // tela deitada = TV, em qualquer tamanho (Smart TVs costumam informar 854 ou 960 px de largura)
+  var modoTV = window.matchMedia('(orientation: landscape) and (min-width: 600px)');
   function transborda() {
     if (quadro.scrollHeight > quadro.clientHeight + 1) return true;
     var bs = quadro.querySelectorAll('.bloco');
@@ -160,6 +161,27 @@
   }
   var timerAjuste;
   window.addEventListener('resize', function () { clearTimeout(timerAjuste); timerAjuste = setTimeout(ajustar, 150); });
+
+  // ---------- margem de segurança (TVs que cortam as bordas) ----------
+  // ?margem=5 no endereço fixa a margem; o botão "Margem" alterna 0% → 3% → 5% e fica salvo nesta TV
+  var MARGENS = [0, 3, 5];
+  var CHAVE_MARGEM = 'ft-tv-margem';
+  var botaoMargem = $('#margem');
+  function aplicarMargem(m) {
+    document.body.style.setProperty('--m', String(m));
+    if (botaoMargem) botaoMargem.textContent = 'Margem ' + m + '%';
+    setTimeout(ajustar, 50);
+  }
+  var margem = parseInt(new URLSearchParams(location.search).get('margem'), 10);
+  if (isNaN(margem)) { try { margem = parseInt(localStorage.getItem(CHAVE_MARGEM), 10); } catch (e) {} }
+  if (isNaN(margem) || margem < 0 || margem > 10) margem = 0;
+  aplicarMargem(margem);
+  if (botaoMargem) botaoMargem.addEventListener('click', function () {
+    var i = MARGENS.indexOf(margem);
+    margem = MARGENS[(i + 1) % MARGENS.length];
+    try { localStorage.setItem(CHAVE_MARGEM, String(margem)); } catch (e) {}
+    aplicarMargem(margem);
+  });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustar);
 
   // ---------- dados ----------

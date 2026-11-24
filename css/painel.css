@@ -87,7 +87,11 @@ h1, h2, h3, p { margin: 0; }
 .login__legal a:hover { color: var(--y); }
 
 /* ---------- treinos (TV) ---------- */
-.tv { height: 100%; display: flex; flex-direction: column; overflow: hidden; --fs: 28px; }
+/* --m = margem de segurança em % (botão "Margem"): TVs com overscan cortam de 2% a 5% de cada borda */
+.tv {
+  height: 100%; display: flex; flex-direction: column; overflow: hidden; --fs: 28px; --m: 0;
+  padding: calc(var(--m) * 1vh) calc(var(--m) * 1vw);
+}
 .tv.ocioso { cursor: none; }
 .tv__top {
   display: flex; align-items: center; gap: 2.2vw;
@@ -151,10 +155,10 @@ h1, h2, h3, p { margin: 0; }
 .tv__vazio .btn { justify-self: center; margin-top: 1vh; }
 
 .tv__base { position: relative; height: 1.4vh; min-height: 8px; background: var(--stripe); }
-.tv__status { position: fixed; right: 3vw; bottom: 2.4vh; color: var(--mute); font-size: max(10px, 1.2vh); opacity: .7; }
+.tv__status { position: fixed; right: calc(3vw + var(--m) * 1vw); bottom: calc(2.4vh + var(--m) * 1vh); color: var(--mute); font-size: max(10px, 1.2vh); opacity: .7; }
 
 .tv__ctl {
-  position: fixed; left: 50%; bottom: 4vh; transform: translateX(-50%);
+  position: fixed; left: 50%; bottom: calc(4vh + var(--m) * 1vh); transform: translateX(-50%);
   display: flex; gap: 8px; padding: 8px; border-radius: 999px;
   background: rgba(18, 18, 18, .92); border: 1px solid var(--line-2);
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -163,9 +167,10 @@ h1, h2, h3, p { margin: 0; }
 .tv__ctl .btn { padding: 12px 18px; font-size: 12px; }
 .tv.ocioso .tv__ctl { opacity: 0; transform: translate(-50%, 20px); pointer-events: none; }
 
-/* celular / tela em pé: rola normalmente, um bloco por linha */
-@media (max-width: 899px), (orientation: portrait) {
-  .tv { height: auto; min-height: 100%; overflow: visible; --fs: 20px !important; }
+/* celular / tela em pé: rola normalmente, um bloco por linha.
+   Tela deitada é tratada como TV em qualquer tamanho (Smart TVs costumam informar 854 ou 960 px de largura). */
+@media (orientation: portrait), (max-width: 599px) {
+  .tv { height: auto; min-height: 100%; overflow: visible; --fs: 20px !important; padding: 0; }
   .tv__top { flex-wrap: wrap; padding: 18px 16px; gap: 14px; }
   .tv__logo { height: 48px; }
   .tv__titulo h1 { font-size: 34px; }
