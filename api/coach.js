@@ -20,7 +20,7 @@ const gemini = require('./_lib/gemini');
 const { treinosDaData } = require('./_lib/fonte');
 const push = require('./_lib/push');
 const movimentos = require('./_lib/movimentos');
-const { enviarEmail, emailConvite } = require('./_lib/email-codigo');
+const { enviarEmail, emailConvite, emailCodigo } = require('./_lib/email-codigo');
 
 const DIAS_CURTOS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 // "qua 25/11"
@@ -360,6 +360,17 @@ const acoes = {
 
   async importar_movimentos(eu) {
     return { ok: true, importados: await movimentos.importarProntos(eu.id) };
+  },
+
+  // Admin: manda para o próprio e-mail os e-mails do site (cadastro e código), pelo mesmo caminho dos alunos
+  async email_teste(eu) {
+    if (!ehAdmin(eu)) throw falha(403, 'Só um admin pode mandar e-mail de teste.');
+    const coach = await banco.um('perfis', 'select=nome&email=eq.' + q(emailsLiberados()[0] || eu.email));
+    const convite = emailConvite({ email: eu.email, nome: eu.nome, coach: (coach && coach.nome) || eu.nome, papel: 'aluno' });
+    const codigo = emailCodigo(String(Math.floor(Math.random() * 1e8)).padStart(8, '0'));
+    await enviarEmail(eu.email, { ...convite, assunto: '[Teste] ' + convite.assunto });
+    await enviarEmail(eu.email, { ...codigo, assunto: '[Teste] ' + codigo.assunto });
+    return { ok: true, para: eu.email };
   },
 
   // link para o navegador enviar o arquivo de vídeo direto ao Storage

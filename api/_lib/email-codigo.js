@@ -1,49 +1,79 @@
-// E-mail com o código de acesso, no visual do site (preto, amarelo #FFCB3C, logo FT).
-// Tabelas + estilos inline porque é o que Gmail/Outlook/Apple Mail entendem.
+// E-mails do site (código de acesso e cadastro), no visual da FT: fundo escuro, amarelo #FFCB3C, logo.
+// Feitos para o Gmail: só tabelas, cores em bgcolor + estilo inline, fonte Arial, sem gradiente,
+// sem fonte web e sem imagem de fundo (o Gmail ignora ou desenha errado).
 const SITE = 'https://www.fttraining.com.br';
+const LOGO = SITE + '/assets/brand/icon-512.png';
 
-function emailCodigo(codigo) {
-  const legivel = codigo.slice(0, 4) + ' ' + codigo.slice(4);
-  const assunto = `${legivel} é o seu código de acesso FT Training`;
+const esc = (s) => String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const FONTE = 'Arial,Helvetica,sans-serif';
 
-  const html = `<!doctype html>
+// Moldura comum: logo, título, conteúdo e rodapé. "previa" é o texto que aparece ao lado do assunto na caixa de entrada.
+function moldura({ assunto, previa, titulo, conteudo, rodape }) {
+  return `<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="dark">
-<meta name="supported-color-schemes" content="dark">
-<title>${assunto}</title>
+<meta name="color-scheme" content="dark light">
+<meta name="supported-color-schemes" content="dark light">
+<title>${esc(assunto)}</title>
 </head>
-<body style="margin:0;padding:0;background:#000000;">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Use ${legivel} para entrar na área de treinos. Vale por 10 minutos.</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#000000;">
-  <tr><td align="center" style="padding:40px 16px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;background:#0a0a0a;border:1px solid #262626;border-radius:18px;">
-      <tr><td style="height:8px;border-radius:18px 18px 0 0;background:#ffcb3c;background-image:repeating-linear-gradient(-45deg,#ffcb3c 0 14px,#0a0a0a 14px 28px);font-size:0;line-height:0;">&nbsp;</td></tr>
-      <tr><td align="center" style="padding:36px 32px 8px;">
-        <a href="${SITE}" style="text-decoration:none;"><img src="${SITE}/assets/brand/icon-512.png" width="132" height="132" alt="FT Training" style="display:block;border:0;width:132px;height:132px;"></a>
+<body style="margin:0;padding:0;background-color:#0a0a0a;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#0a0a0a;">${esc(previa)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0a0a0a" style="background-color:#0a0a0a;">
+  <tr><td align="center" style="padding:32px 16px 40px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+      <tr><td align="center" style="padding-bottom:20px;">
+        <a href="${SITE}" style="text-decoration:none;"><img src="${LOGO}" width="88" height="88" alt="FT Training" style="display:block;border:0;width:88px;height:88px;"></a>
       </td></tr>
-      <tr><td align="center" style="padding:0 32px;">
-        <p style="margin:0;font-family:'Courier New',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#ffcb3c;">+ Alunos e equipe</p>
-        <h1 style="margin:12px 0 0;font-family:'Arial Narrow',Arial,sans-serif;font-weight:900;font-style:italic;font-size:34px;line-height:1;text-transform:uppercase;color:#f2efe8;">Seu código de acesso</h1>
+      <tr><td bgcolor="#151515" style="background-color:#151515;border:1px solid #262626;border-radius:16px;padding:32px 28px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr><td style="padding-bottom:6px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#ffcb3c" width="40" height="4" style="background-color:#ffcb3c;width:40px;height:4px;font-size:0;line-height:0;border-radius:2px;">&nbsp;</td></tr></table></td></tr>
+          <tr><td style="padding-top:18px;font-family:${FONTE};font-size:24px;line-height:1.25;font-weight:bold;color:#ffffff;">${titulo}</td></tr>
+          ${conteudo}
+        </table>
       </td></tr>
-      <tr><td align="center" style="padding:28px 32px;">
-        <div style="display:inline-block;padding:18px 28px;border:2px solid #ffcb3c;border-radius:14px;font-family:'Courier New',monospace;font-weight:700;font-size:40px;letter-spacing:8px;color:#ffcb3c;white-space:nowrap;">${legivel}</div>
-      </td></tr>
-      <tr><td align="center" style="padding:0 40px 32px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#bdb9b0;">
-        Digite esse código na tela de login do site para entrar.<br>
-        Ele vale por <strong style="color:#f2efe8;">10 minutos</strong>.
-      </td></tr>
-      <tr><td style="padding:20px 32px;border-top:1px solid #262626;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#8a8780;text-align:center;">
-        Não pediu este código? Pode ignorar este e-mail: ninguém entra sem ele.<br>
-        <a href="${SITE}" style="color:#8a8780;">fttraining.com.br</a> · Divinópolis-MG
+      <tr><td align="center" style="padding:22px 12px 0;font-family:${FONTE};font-size:12px;line-height:1.6;color:#7a7770;">
+        ${rodape}<br>
+        <a href="${SITE}" style="color:#7a7770;text-decoration:underline;">fttraining.com.br</a> &middot; Divinópolis-MG
       </td></tr>
     </table>
   </td></tr>
 </table>
 </body>
 </html>`;
+}
+
+const paragrafo = (html, extra = '') =>
+  `<tr><td style="padding-top:14px;font-family:${FONTE};font-size:16px;line-height:1.6;color:#c9c5bd;${extra}">${html}</td></tr>`;
+
+// Botão que funciona no Gmail e no Outlook (célula com cor, link dentro)
+const botao = (link, texto) => `<tr><td style="padding-top:26px;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td bgcolor="#ffcb3c" style="background-color:#ffcb3c;border-radius:10px;">
+      <a href="${link}" style="display:inline-block;padding:15px 30px;font-family:${FONTE};font-size:16px;font-weight:bold;color:#0a0a0a;text-decoration:none;border-radius:10px;">${texto}</a>
+    </td>
+  </tr></table>
+</td></tr>`;
+
+// ---------- código de acesso ----------
+function emailCodigo(codigo) {
+  const legivel = codigo.slice(0, 4) + ' ' + codigo.slice(4);
+  const assunto = `${legivel} é o seu código de acesso FT Training`;
+
+  const conteudo = paragrafo('Digite este código na tela de login do site para entrar:') + `
+          <tr><td style="padding-top:20px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td align="center" bgcolor="#0a0a0a" style="background-color:#0a0a0a;border:1px solid #ffcb3c;border-radius:12px;padding:18px 10px;font-family:'Courier New',Courier,monospace;font-size:34px;font-weight:bold;letter-spacing:6px;color:#ffcb3c;white-space:nowrap;">${legivel}</td>
+            </tr></table>
+          </td></tr>` +
+    paragrafo('Ele vale por <strong style="color:#ffffff;">10 minutos</strong>.', 'font-size:14px;color:#9a968e;');
+
+  const html = moldura({
+    assunto, previa: `Use ${legivel} para entrar. Vale por 10 minutos.`,
+    titulo: 'Seu código de acesso', conteudo,
+    rodape: 'Não pediu este código? Pode ignorar este e-mail: ninguém entra sem ele.'
+  });
 
   const texto = `FT Training
 
@@ -57,65 +87,53 @@ ${SITE}`;
   return { assunto, html, texto };
 }
 
-const esc = (s) => String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-
-// Convite: o coach cadastrou a pessoa no painel → ela recebe o link para entrar (Google ou código por e-mail)
+// ---------- cadastro: o coach cadastrou a pessoa no painel ----------
 function emailConvite({ email, nome, coach, papel }) {
   const primeiro = String(nome || '').trim().split(/\s+/)[0];
-  const ola = primeiro ? `Olá, ${esc(primeiro)}!` : 'Olá!';
-  const quem = coach ? esc(coach) : 'O seu coach';
+  const quem = String(coach || '').trim() || 'O seu coach';
   const aluno = papel !== 'admin' && papel !== 'coach';
   const destino = aluno ? '/aluno' : '/coach';
   const link = `${SITE}/entrar?volta=${encodeURIComponent(destino)}`;
   const oque = aluno ? 'a sua planilha de treinos' : 'o painel da equipe';
   const assunto = aluno ? 'Sua planilha de treinos na FT Training está pronta' : 'Seu acesso à equipe FT Training';
+  const titulo = primeiro ? `${esc(primeiro)}, seu acesso está pronto` : 'Seu acesso está pronto';
 
-  const html = `<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="dark">
-<meta name="supported-color-schemes" content="dark">
-<title>${assunto}</title>
-</head>
-<body style="margin:0;padding:0;background:#000000;">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${quem} liberou o seu acesso. Entre com ${esc(email)}.</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#000000;">
-  <tr><td align="center" style="padding:40px 16px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;background:#0a0a0a;border:1px solid #262626;border-radius:18px;">
-      <tr><td style="height:8px;border-radius:18px 18px 0 0;background:#ffcb3c;background-image:repeating-linear-gradient(-45deg,#ffcb3c 0 14px,#0a0a0a 14px 28px);font-size:0;line-height:0;">&nbsp;</td></tr>
-      <tr><td align="center" style="padding:36px 32px 8px;">
-        <a href="${SITE}" style="text-decoration:none;"><img src="${SITE}/assets/brand/icon-512.png" width="132" height="132" alt="FT Training" style="display:block;border:0;width:132px;height:132px;"></a>
-      </td></tr>
-      <tr><td align="center" style="padding:0 32px;">
-        <p style="margin:0;font-family:'Courier New',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#ffcb3c;">+ ${aluno ? 'Sou aluno' : 'Equipe'}</p>
-        <h1 style="margin:12px 0 0;font-family:'Arial Narrow',Arial,sans-serif;font-weight:900;font-style:italic;font-size:34px;line-height:1;text-transform:uppercase;color:#f2efe8;">${ola}</h1>
-      </td></tr>
-      <tr><td align="center" style="padding:20px 40px 8px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#bdb9b0;">
-        ${quem} liberou ${oque} no site da FT Training.<br>
-        Para entrar, use o e-mail <strong style="color:#f2efe8;">${esc(email)}</strong>: pela conta Google ou com um código que chega neste e-mail. Sem senha.
-      </td></tr>
-      <tr><td align="center" style="padding:24px 32px 32px;">
-        <a href="${link}" style="display:inline-block;padding:16px 30px;background:#ffcb3c;border-radius:999px;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;color:#0a0a0a;text-decoration:none;">Entrar na FT Training</a>
-      </td></tr>
-      <tr><td style="padding:20px 32px;border-top:1px solid #262626;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#8a8780;text-align:center;">
-        No celular, depois de entrar, toque em "Adicionar à tela inicial" para abrir como app.<br>
-        Não conhece a FT Training? Pode ignorar este e-mail.<br>
-        <a href="${SITE}" style="color:#8a8780;">fttraining.com.br</a> · Divinópolis-MG
-      </td></tr>
-    </table>
-  </td></tr>
-</table>
-</body>
-</html>`;
+  const passo = (n, html) => `<tr>
+                <td width="28" valign="top" style="padding:6px 0;font-family:${FONTE};font-size:15px;font-weight:bold;color:#ffcb3c;">${n}</td>
+                <td valign="top" style="padding:6px 0;font-family:${FONTE};font-size:15px;line-height:1.5;color:#c9c5bd;">${html}</td>
+              </tr>`;
 
-  const texto = `${ola.replace(/&amp;/g, '&')}
+  const conteudo =
+    paragrafo(`${esc(quem)} liberou ${oque} no site da <strong style="color:#ffffff;">FT Training</strong>.`) +
+    botao(link, 'Entrar na FT Training') + `
+          <tr><td style="padding-top:28px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td bgcolor="#0f0f0f" style="background-color:#0f0f0f;border:1px solid #262626;border-radius:12px;padding:16px 18px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr><td colspan="2" style="padding-bottom:6px;font-family:${FONTE};font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#9a968e;">Como entrar</td></tr>
+                  ${passo('1', 'Toque em <strong style="color:#ffffff;">Entrar na FT Training</strong>.')}
+                  ${passo('2', `Entre com a conta Google <a href="mailto:${esc(email)}" style="color:#ffffff;font-weight:bold;text-decoration:none;">${esc(email)}</a>, ou peça um código: ele chega neste e-mail. Sem senha.`)}
+                  ${aluno ? passo('3', 'No celular, use <strong style="color:#ffffff;">Adicionar à tela inicial</strong> para abrir como app.') : ''}
+                </table>
+              </td>
+            </tr></table>
+          </td></tr>`;
 
-${coach || 'O seu coach'} liberou ${oque} no site da FT Training.
-Para entrar, use o e-mail ${email}: pela conta Google ou com um código que chega neste e-mail. Sem senha.
+  const html = moldura({
+    assunto, previa: `${quem} liberou o seu acesso. Entre com ${email}.`,
+    titulo, conteudo,
+    rodape: 'Não conhece a FT Training? Pode ignorar este e-mail.'
+  });
+
+  const texto = `${primeiro ? primeiro + ', seu' : 'Seu'} acesso está pronto
+
+${quem} liberou ${oque} no site da FT Training.
 
 Entrar: ${link}
+
+Como entrar:
+1. Abra o link acima.
+2. Entre com a conta Google ${email}, ou peça um código: ele chega neste e-mail. Sem senha.${aluno ? '\n3. No celular, use "Adicionar à tela inicial" para abrir como app.' : ''}
 
 Não conhece a FT Training? Pode ignorar este e-mail.`;
 
