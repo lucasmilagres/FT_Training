@@ -63,7 +63,7 @@ async function alunoGerido(eu, id) {
 
 async function membroDaEquipe(id) {
   if (!uuidOk(id)) return null;
-  return banco.um('perfis', 'select=id&ativo=eq.true&papel=in.(admin,coach)&id=eq.' + id);
+  return banco.um('perfis', 'select=id,nome&ativo=eq.true&papel=in.(admin,coach)&id=eq.' + id);
 }
 
 // ---------- estrutura do treino (vem do editor; nada passa sem limpar) ----------
@@ -206,10 +206,14 @@ const acoes = {
     if (!emailOk(email)) throw falha(400, 'Digite um e-mail válido (o da conta Google do aluno).');
     const nome = texto(b.nome, 120);
     let papel = 'aluno', coachId = eu.id;
+    // no e-mail do aluno aparece o nome do coach dele, não o de quem cadastrou (um admin pode cadastrar pelo coach)
+    let nomeCoach = eu.nome;
     if (ehAdmin(eu)) {
       papel = PAPEIS.includes(b.papel) ? b.papel : 'aluno';
       coachId = papel === 'aluno' ? (b.coach_id || eu.id) : null;
-      if (coachId && !(await membroDaEquipe(coachId))) throw falha(400, 'Coach inválido.');
+      const coach = coachId ? await membroDaEquipe(coachId) : null;
+      if (coachId && !coach) throw falha(400, 'Coach inválido.');
+      if (coach && coach.nome) nomeCoach = coach.nome;
     }
     const ja = await banco.perfilPorEmail(email);
     if (ja && ja.ativo) {
@@ -219,7 +223,7 @@ const acoes = {
     const criado = await banco.inserir('convites', { email, nome, papel, coach_id: coachId, criado_por: eu.id });
     // e-mail avisando que o acesso foi criado; se falhar, o cadastro continua valendo
     let email_enviado = false;
-    try { email_enviado = await enviarEmail(email, emailConvite({ email, nome, coach: eu.nome, papel })); } catch (e) {
+    try { email_enviado = await enviarEmail(email, emailConvite({ email, nome, coach: nomeCoach, papel })); } catch (e) {
       console.error('convite e-mail:', e.message);
     }
     // sem linha de volta = a pessoa já tinha entrado antes e o convite liberou o acesso na hora
