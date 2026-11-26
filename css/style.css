@@ -123,9 +123,11 @@ body::after {
 .is-coach .so-coach { display: flex !important; }
 .nav__links .nav__treinos { color: var(--y); }
 /* três listras: aparece também no computador (Movimentos, Sou aluno e Planilha ficam no menu) */
-.nav__burger { display: block; flex: none; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line-2); position: relative; transition: border-color .3s; }
-.nav__burger:hover { border-color: var(--y); }
-.nav__burger span { position: absolute; left: 14px; right: 14px; height: 2px; background: var(--bone); transition: transform .35s var(--ease), top .35s, opacity .2s; }
+/* grafite: discreto, mas visível; clareia ao passar o mouse e quando o menu está aberto */
+.nav__burger { display: block; flex: none; width: 46px; height: 46px; border-radius: 50%; border: 1px solid #2c2c2c; background: transparent; position: relative; cursor: pointer; transition: border-color .3s; }
+.nav__burger span { position: absolute; left: 14px; right: 14px; height: 2px; border-radius: 2px; background: #5c5a56; transition: transform .35s var(--ease), top .35s, opacity .2s, background .3s; }
+.nav__burger:hover, .menu-open .nav__burger { border-color: #4a4844; }
+.nav__burger:hover span, .menu-open .nav__burger span { background: #9a968e; }
 .nav__burger span:nth-child(1) { top: 15px; }
 .nav__burger span:nth-child(2) { top: 21px; }
 .nav__burger span:nth-child(3) { top: 27px; }
