@@ -571,3 +571,29 @@ body:not(.eh-admin) .so-admin { display: none !important; }
   .linha { flex-wrap: wrap; }
   .coach__abas a { font-size: 17px; padding: 10px 9px; }
 }
+
+/* ---------- envio de vídeo (aba Movimentos) ---------- */
+.upload { display: grid; gap: 6px; }
+.upload > .mono { color: var(--mute); font-size: 11px; }
+.upload__input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.form .upload__area {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px; cursor: pointer;
+  border: 1px dashed var(--line-2); border-radius: 12px; background: var(--ink);
+  transition: border-color .2s, background .2s;
+}
+.form .upload__area:hover, .upload.arrastando .upload__area { border-color: var(--y); background: rgba(255, 203, 60, .05); }
+.upload__input:focus-visible + .upload__area { border-color: var(--y); box-shadow: 0 0 0 3px rgba(255, 203, 60, .18); }
+.upload__ico { flex: none; width: 34px; height: 34px; padding: 7px; border-radius: 50%; background: var(--char); fill: none; stroke: var(--y); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.upload__txt { display: grid; min-width: 0; flex: 1; }
+.upload__txt b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.upload__txt small { color: var(--mute); font-size: 13px; }
+.upload__btn { flex: none; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--bone); font-size: 11px; }
+.upload__area:hover .upload__btn { border-color: var(--y); color: var(--y); }
+.upload.tem-arquivo .upload__area { border-style: solid; border-color: var(--y); }
+.upload.tem-arquivo .upload__btn { color: var(--mute); }
+.upload__barra { position: relative; height: 6px; margin: 4px 0 22px; border-radius: 999px; background: var(--char); }
+.upload__barra i { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 999px; background: var(--y); transition: width .2s; }
+.upload__barra span { position: absolute; left: 0; top: 12px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--y); }
+
+/* textos longos das listas não esticam a página para o lado */
+.coach__grade > *, .linhas > li { min-width: 0; }

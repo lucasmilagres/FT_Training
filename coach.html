@@ -153,8 +153,19 @@
             <input type="hidden" name="id">
             <label><span class="mono">Nome</span><input name="nome" required maxlength="80" placeholder="Ex.: Wall Ball" autocomplete="off"></label>
             <label><span class="mono">Link do YouTube</span><input name="video_url" type="url" maxlength="500" placeholder="https://youtube.com/watch?v=…" autocomplete="off"></label>
-            <label><span class="mono">Ou envie o vídeo <small id="m-limite"></small></span><input name="arquivo" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-m4v"></label>
-            <p class="card__ajuda" id="m-progresso" hidden></p>
+            <div class="upload" id="m-upload">
+              <span class="mono">Ou envie o vídeo</span>
+              <input class="upload__input" id="m-arquivo" name="arquivo" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-m4v">
+              <label class="upload__area" for="m-arquivo">
+                <svg class="upload__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+                <span class="upload__txt">
+                  <b id="m-arquivo-nome">Escolher vídeo</b>
+                  <small id="m-limite">Do celular ou do computador · MP4, MOV ou WEBM</small>
+                </span>
+                <span class="upload__btn mono" id="m-arquivo-acao">Procurar</span>
+              </label>
+              <div class="upload__barra" id="m-progresso" hidden><i></i><span></span></div>
+            </div>
             <label><span class="mono">Como fazer (opcional)</span><textarea name="orientacoes" rows="3" maxlength="600" placeholder="Dicas curtas de execução"></textarea></label>
             <div class="form__linha">
               <button class="btn btn--yellow" type="submit">Salvar</button>

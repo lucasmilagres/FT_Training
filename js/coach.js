@@ -591,7 +591,7 @@
     if (!M) { var ul = $('#movimentos'); ul.textContent = ''; ul.appendChild(el('li', 'linhas__vazio', 'Carregando…')); }
     return api('GET', null, '?acao=movimentos').then(function (j) {
       M = j;
-      $('#m-limite').textContent = '(até ' + j.limiteMb + ' MB)';
+      $('#m-limite').textContent = 'Do celular ou do computador · MP4, MOV ou WEBM · até ' + j.limiteMb + ' MB';
       if (j.importados) msg(j.importados + ' movimentos com vídeo já foram colocados. Confira, troque ou apague o que quiser.', 'ok');
       desenharMovimentos();
     }).catch(erro);
@@ -638,7 +638,7 @@
   function editarMovimento(m) {
     fM.id.value = m.id; fM.nome.value = m.nome;
     fM.video_url.value = m.video_url || ''; fM.orientacoes.value = m.orientacoes || '';
-    fM.arquivo.value = '';
+    fM.arquivo.value = ''; mostrarArquivo(); progresso(null);
     $('#m-titulo').textContent = 'Editar movimento';
     $('#m-cancelar').hidden = false;
     fM.nome.focus();
@@ -648,26 +648,63 @@
     fM.reset(); fM.id.value = '';
     $('#m-titulo').textContent = 'Novo movimento';
     $('#m-cancelar').hidden = true;
-    $('#m-progresso').hidden = true;
+    progresso(null);
+    mostrarArquivo();
   }
+
+  // Área de envio: mostra o vídeo escolhido (nome e tamanho) no lugar do texto
+  function mostrarArquivo() {
+    var a = fM.arquivo.files && fM.arquivo.files[0];
+    $('#m-upload').classList.toggle('tem-arquivo', !!a);
+    $('#m-arquivo-nome').textContent = a ? a.name : 'Escolher vídeo';
+    $('#m-arquivo-acao').textContent = a ? 'Trocar' : 'Procurar';
+    if (a) $('#m-limite').textContent = (a.size / 1048576).toFixed(1).replace('.', ',') + ' MB · enviado ao salvar';
+    else if (M) $('#m-limite').textContent = 'Do celular ou do computador · MP4, MOV ou WEBM · até ' + M.limiteMb + ' MB';
+  }
+  // barra de envio: null esconde; número = porcentagem; texto = mensagem final
+  function progresso(v) {
+    var b = $('#m-progresso');
+    b.hidden = v == null;
+    if (v == null) return;
+    $('i', b).style.width = (typeof v === 'number' ? v : 100) + '%';
+    $('span', b).textContent = typeof v === 'number' ? 'Enviando vídeo… ' + v + '%' : v;
+  }
+
+  // arrastar o arquivo para a área também funciona
+  (function () {
+    var box = $('#m-upload');
+    ['dragenter', 'dragover'].forEach(function (t) {
+      box.addEventListener(t, function (e) { e.preventDefault(); box.classList.add('arrastando'); });
+    });
+    ['dragleave', 'drop'].forEach(function (t) {
+      box.addEventListener(t, function () { box.classList.remove('arrastando'); });
+    });
+    box.addEventListener('drop', function (e) {
+      e.preventDefault();
+      var f = e.dataTransfer && e.dataTransfer.files;
+      if (!f || !f.length) return;
+      if (!/^video\//.test(f[0].type)) { msg('Esse arquivo não é um vídeo.', 'erro'); return; }
+      fM.arquivo.files = f;
+      fM.arquivo.dispatchEvent(new Event('change'));
+    });
+  })();
 
   // Envia o arquivo direto para o Storage (link assinado), mostrando o progresso
   function enviarArquivo(arquivo) {
     return acao('envio_video', { tipo: arquivo.type, tamanho: arquivo.size }).then(function (j) {
       return new Promise(function (ok, falhou) {
-        var p = $('#m-progresso');
-        p.hidden = false; p.textContent = 'Enviando vídeo… 0%';
+        progresso(0);
         var corpo = new FormData();
         corpo.append('cacheControl', '3600');
         corpo.append('', arquivo);
         var x = new XMLHttpRequest();
         x.open('PUT', j.envio);
-        x.upload.onprogress = function (e) { if (e.lengthComputable) p.textContent = 'Enviando vídeo… ' + Math.round(e.loaded / e.total * 100) + '%'; };
+        x.upload.onprogress = function (e) { if (e.lengthComputable) progresso(Math.round(e.loaded / e.total * 100)); };
         x.onload = function () {
-          if (x.status >= 200 && x.status < 300) { p.textContent = 'Vídeo enviado.'; ok(j.publico); }
-          else falhou(new Error('O envio do vídeo falhou (' + x.status + '). Tente de novo ou use um link do YouTube.'));
+          if (x.status >= 200 && x.status < 300) { progresso('Vídeo enviado'); ok(j.publico); }
+          else { progresso(null); falhou(new Error('O envio do vídeo falhou (' + x.status + '). Tente de novo ou use um link do YouTube.')); }
         };
-        x.onerror = function () { falhou(new Error('O envio do vídeo falhou. Confira a internet e tente de novo.')); };
+        x.onerror = function () { progresso(null); falhou(new Error('O envio do vídeo falhou. Confira a internet e tente de novo.')); };
         x.send(corpo);
       });
     });
@@ -690,8 +727,8 @@
     }).catch(erro).then(function () { ocupado(b, false); });
   });
   // link e arquivo: um ou outro
-  fM.arquivo.addEventListener('change', function () { if (fM.arquivo.files.length) fM.video_url.value = ''; });
-  fM.video_url.addEventListener('input', function () { if (fM.video_url.value) fM.arquivo.value = ''; });
+  fM.arquivo.addEventListener('change', function () { if (fM.arquivo.files.length) fM.video_url.value = ''; mostrarArquivo(); });
+  fM.video_url.addEventListener('input', function () { if (fM.video_url.value && fM.arquivo.value) { fM.arquivo.value = ''; mostrarArquivo(); } });
   $('#m-cancelar').addEventListener('click', limparMovimento);
   $('#m-busca').addEventListener('input', function () { if (M) desenharMovimentos(); });
   $('#m-importar').addEventListener('click', function () {
