@@ -421,7 +421,13 @@ h1, h2, h3, p { margin: 0; }
   display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 14px;
   background: var(--char); border: 1px solid var(--y); box-shadow: 0 12px 40px rgba(0, 0, 0, .6); font-size: 14px;
 }
-.pwa-dica p { flex: 1; }
+.pwa-dica p { flex: 1; margin: 0; }
+.pwa-dica__texto { flex: 1; }
+.pwa-dica ol { margin: 8px 0 0; padding: 0; list-style: none; counter-reset: passo; display: grid; gap: 7px; }
+.pwa-dica li { counter-increment: passo; position: relative; padding-left: 30px; min-height: 22px; line-height: 1.6; color: #c9c5bd; }
+.pwa-dica li::before { content: counter(passo); position: absolute; left: 0; top: 1px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--y); color: var(--ink); font: 700 11px var(--f-mono); }
+.pwa-dica li .pwa-dica__ico { vertical-align: -5px; }
+.pwa-dica li b { color: var(--bone); }
 .pwa-dica__ico { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; background: var(--line-2); font-size: 12px; }
 .pwa-dica__fechar { background: none; border: 0; color: var(--mute); font-size: 22px; line-height: 1; cursor: pointer; padding: 0 2px; }
 .pwa-abrindo { display: grid; justify-items: center; gap: 12px; }

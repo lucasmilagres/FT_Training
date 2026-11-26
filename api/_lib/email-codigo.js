@@ -113,7 +113,11 @@ function emailConvite({ email, nome, coach, papel }) {
                   <tr><td colspan="2" style="padding-bottom:6px;font-family:${FONTE};font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#9a968e;">Como entrar</td></tr>
                   ${passo('1', 'Toque em <strong style="color:#ffffff;">Entrar na FT Training</strong>.')}
                   ${passo('2', `Entre com a conta Google <a href="mailto:${esc(email)}" style="color:#ffffff;font-weight:bold;text-decoration:none;">${esc(email)}</a>, ou peça um código: ele chega neste e-mail. Sem senha.`)}
-                  ${aluno ? passo('3', 'No celular, use <strong style="color:#ffffff;">Adicionar à tela inicial</strong> para abrir como app.') : ''}
+                  ${aluno ? passo('3', 'Coloque o app na tela do celular:') : ''}
+                  ${aluno ? `<tr><td></td><td style="padding:2px 0 6px;font-family:${FONTE};font-size:14px;line-height:1.6;color:#c9c5bd;">
+                    <strong style="color:#ffcb3c;">iPhone</strong><br>Compartilhar &rsaquo; <strong style="color:#ffffff;">Adicionar à Tela de Início</strong>
+                    <div style="padding-top:10px;"><strong style="color:#ffcb3c;">Android</strong><br>&#8942; &rsaquo; Criar atalho &rsaquo; <strong style="color:#ffffff;">Adicionar à tela inicial</strong></div>
+                  </td></tr>` : ''}
                 </table>
               </td>
             </tr></table>
@@ -133,7 +137,7 @@ Entrar: ${link}
 
 Como entrar:
 1. Abra o link acima.
-2. Entre com a conta Google ${email}, ou peça um código: ele chega neste e-mail. Sem senha.${aluno ? '\n3. No celular, use "Adicionar à tela inicial" para abrir como app.' : ''}
+2. Entre com a conta Google ${email}, ou peça um código: ele chega neste e-mail. Sem senha.${aluno ? '\n3. Coloque o app na tela do celular:\n   iPhone: Compartilhar > Adicionar à Tela de Início\n   Android: ⋮ > Criar atalho > Adicionar à tela inicial' : ''}
 
 Não conhece a FT Training? Pode ignorar este e-mail.`;
 

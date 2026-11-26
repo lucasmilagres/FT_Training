@@ -178,13 +178,23 @@
     if (b) b.remove();
   });
 
-  // iPhone/iPad no Safari: não existe o aviso automático, então mostramos como fazer
+  // Celular: mostramos o caminho certo para colocar o app na tela inicial, conforme o aparelho
   var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  if (ios && !dicaFechada) {
-    document.addEventListener('DOMContentLoaded', function () {
+  var android = /android/i.test(navigator.userAgent);
+  var PASSOS = {
+    ios: ['Toque em <span class="pwa-dica__ico" aria-hidden="true">⬆</span> <b>Compartilhar</b>, na barra do Safari',
+          'Toque em <b>Adicionar à Tela de Início</b>'],
+    android: ['Toque em <span class="pwa-dica__ico" aria-hidden="true">⋮</span> no canto do navegador',
+              'Toque em <b>Criar atalho</b>',
+              'Toque em <b>Adicionar à tela inicial</b>']
+  };
+  var passos = ios ? PASSOS.ios : android ? PASSOS.android : null;
+  if (passos && !dicaFechada) {
+    var mostrarDica = function () {
       var dica = document.createElement('div');
       dica.className = 'pwa-dica';
-      dica.innerHTML = '<p><b>Instale o app:</b> toque em <span class="pwa-dica__ico" aria-label="Compartilhar">⬆</span> Compartilhar e depois em <b>Adicionar à Tela de Início</b>.</p>';
+      dica.innerHTML = '<div class="pwa-dica__texto"><p><b>Coloque o app na tela do ' + (ios ? 'iPhone' : 'celular') + '</b></p><ol>' +
+        passos.map(function (p) { return '<li>' + p + '</li>'; }).join('') + '</ol></div>';
       var x = document.createElement('button');
       x.type = 'button';
       x.className = 'pwa-dica__fechar';
@@ -196,6 +206,7 @@
       });
       dica.appendChild(x);
       document.body.appendChild(dica);
-    });
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mostrarDica); else mostrarDica();
   }
 })();
