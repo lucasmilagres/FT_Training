@@ -35,6 +35,7 @@
     <a href="#alunos" data-aba="alunos">Alunos</a>
     <a href="#templates" data-aba="templates">Treinos</a>
     <a href="#tv" data-aba="tv">TV</a>
+    <a href="#movimentos" data-aba="movimentos">Movimentos</a>
   </nav>
 
   <main class="coach__main">
@@ -46,10 +47,10 @@
 
       <div class="coach__grade">
         <section class="card">
-          <h2>Convidar</h2>
-          <p class="card__ajuda">Use o e-mail da conta Google da pessoa. No primeiro "Entrar com Google" ela já entra liberada.</p>
+          <h2>Cadastrar</h2>
+          <p class="card__ajuda">A pessoa recebe um e-mail com o link para entrar, pela conta Google ou com um código que chega no e-mail. Sem senha.</p>
           <form id="f-convidar" class="form" novalidate>
-            <label><span class="mono">E-mail Google</span><input name="email" type="email" required placeholder="aluno@gmail.com" autocomplete="off"></label>
+            <label><span class="mono">E-mail</span><input name="email" type="email" required placeholder="aluno@gmail.com" autocomplete="off"></label>
             <label><span class="mono">Nome</span><input name="nome" placeholder="Como aparece no painel" autocomplete="off"></label>
             <div class="so-admin form__linha">
               <label><span class="mono">Papel</span>
@@ -57,7 +58,7 @@
               </label>
               <label class="so-aluno"><span class="mono">Coach</span><select name="coach_id" class="sel-coach"></select></label>
             </div>
-            <button class="btn btn--yellow" type="submit">Convidar</button>
+            <button class="btn btn--yellow" type="submit">Cadastrar e enviar e-mail</button>
           </form>
         </section>
 
@@ -133,6 +134,45 @@
       <div class="tv-dias" id="tv-dias"></div>
       <div class="coach__acoes">
         <button class="btn btn--ghost" id="tv-aprovar-todos" type="button" hidden>Aprovar todos sem alerta</button>
+      </div>
+    </section>
+
+    <!-- ================= MOVIMENTOS (vídeos para os alunos) ================= -->
+    <section id="v-movimentos" class="vista" hidden>
+      <div class="card__topo">
+        <div>
+          <h2 class="titulo">Movimentos</h2>
+          <p class="card__ajuda">Vídeos que explicam cada movimento. Aparecem para todo mundo em <a href="/movimentos" target="_blank" rel="noopener">fttraining.com.br/movimentos</a>, em ordem alfabética. Cole um link do YouTube ou envie o vídeo do celular.</p>
+        </div>
+      </div>
+
+      <div class="coach__grade">
+        <section class="card">
+          <h2 id="m-titulo">Novo movimento</h2>
+          <form id="f-movimento" class="form" novalidate>
+            <input type="hidden" name="id">
+            <label><span class="mono">Nome</span><input name="nome" required maxlength="80" placeholder="Ex.: Wall Ball" autocomplete="off"></label>
+            <label><span class="mono">Link do YouTube</span><input name="video_url" type="url" maxlength="500" placeholder="https://youtube.com/watch?v=…" autocomplete="off"></label>
+            <label><span class="mono">Ou envie o vídeo <small id="m-limite"></small></span><input name="arquivo" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-m4v"></label>
+            <p class="card__ajuda" id="m-progresso" hidden></p>
+            <label><span class="mono">Como fazer (opcional)</span><textarea name="orientacoes" rows="3" maxlength="600" placeholder="Dicas curtas de execução"></textarea></label>
+            <div class="form__linha">
+              <button class="btn btn--yellow" type="submit">Salvar</button>
+              <button class="btn btn--ghost" type="button" id="m-cancelar" hidden>Cancelar</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card">
+          <div class="card__topo">
+            <h2>Cadastrados <small id="n-movimentos"></small></h2>
+            <input id="m-busca" type="search" placeholder="Buscar movimento" aria-label="Buscar movimento">
+          </div>
+          <ul class="linhas" id="movimentos"></ul>
+          <div class="coach__acoes">
+            <button class="btn btn--ghost" id="m-importar" type="button">Adicionar os vídeos prontos que faltam</button>
+          </div>
+        </section>
       </div>
     </section>
 

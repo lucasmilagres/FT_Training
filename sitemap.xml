@@ -7,6 +7,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://www.fttraining.com.br/movimentos</loc>
+    <lastmod>2026-11-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.fttraining.com.br/privacidade</loc>
     <lastmod>2026-10-16</lastmod>
     <changefreq>yearly</changefreq>

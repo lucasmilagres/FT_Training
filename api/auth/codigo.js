@@ -1,7 +1,9 @@
 // POST /api/auth/codigo  { email }  → envia um código de 8 dígitos pelo Resend.
+// Vale para a equipe (TREINOS_EMAILS) e para quem o coach cadastrou (perfil ativo ou convite).
 // O código não fica salvo em lugar nenhum: o navegador recebe um cookie com o hash dele.
 const { crypto, assina, agora, cookie, addCookie, emailsLiberados, json } = require('../_lib/sessao');
-const { emailCodigo } = require('../_lib/email-codigo');
+const { emailCodigo, enviarEmail } = require('../_lib/email-codigo');
+const banco = require('../_lib/banco');
 
 const VALIDADE = 10 * 60;
 
@@ -10,7 +12,15 @@ module.exports = async function (req, res) {
 
   const email = String((req.body && req.body.email) || '').trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json(res, 400, { erro: 'Digite um e-mail válido.' });
-  if (!emailsLiberados().includes(email)) return json(res, 403, { erro: 'Esse e-mail não tem acesso à área de treinos.' });
+
+  let pode = emailsLiberados().includes(email);
+  if (!pode) {
+    try { pode = await banco.temAcesso(email); } catch (e) {
+      console.error('codigo temAcesso:', e.message);
+      return json(res, 502, { erro: 'Não consegui conferir o seu cadastro agora. Tente de novo em instantes.' });
+    }
+  }
+  if (!pode) return json(res, 403, { erro: 'Esse e-mail não está cadastrado. Peça para o seu coach cadastrar você.' });
 
   // 8 dígitos: 100 milhões de combinações, inviável de chutar em 10 minutos
   const codigo = String(crypto.randomInt(0, 1e8)).padStart(8, '0');
@@ -22,28 +32,11 @@ module.exports = async function (req, res) {
     return json(res, 500, { erro: 'Login ainda não configurado no servidor (SESSION_SECRET).' });
   }
 
-  const chave = process.env.RESEND_API_KEY;
-  if (!chave) {
+  try {
     // Sem chave só é aceito rodando local: o código aparece no terminal
-    if (process.env.VERCEL) return json(res, 500, { erro: 'Envio de e-mail não configurado (RESEND_API_KEY).' });
-    console.log(`\n[dev] código para ${email}: ${codigo}\n`);
-  } else {
-    const msg = emailCodigo(codigo);
-    const r = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${chave}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: process.env.EMAIL_REMETENTE || 'FT Training <acesso@fttraining.com.br>',
-        to: [email],
-        subject: msg.assunto,
-        html: msg.html,
-        text: msg.texto
-      })
-    });
-    if (!r.ok) {
-      console.error('Resend falhou', r.status, await r.text());
-      return json(res, 502, { erro: 'Não consegui enviar o e-mail agora. Tente de novo em instantes.' });
-    }
+    await enviarEmail(email, emailCodigo(codigo));
+  } catch (e) {
+    return json(res, process.env.RESEND_API_KEY ? 502 : 500, { erro: process.env.RESEND_API_KEY ? 'Não consegui enviar o e-mail agora. Tente de novo em instantes.' : e.message });
   }
 
   addCookie(res, cookie('ft_otp', `${Buffer.from(email).toString('base64url')}.${x}.${hash}`, VALIDADE, { path: '/api/auth' }));

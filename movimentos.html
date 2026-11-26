@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Movimentos | FT Training</title>
+  <meta name="description" content="Vídeos explicando cada movimento dos treinos da FT Training: wall ball, thruster, burpee, kettlebell swing e mais, em ordem alfabética.">
+  <link rel="canonical" href="https://www.fttraining.com.br/movimentos">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png">
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,800;1,900&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/painel.css">
+  <link rel="stylesheet" href="/css/movimentos.css">
+</head>
+<body class="movs">
+  <header class="movs__top">
+    <a href="/" aria-label="Site da FT Training"><img class="movs__logo" src="/assets/brand/ft-logo-sm.webp" alt="FT Training" width="64" height="42"></a>
+    <a class="link mono" href="/">← Voltar ao site</a>
+  </header>
+
+  <main class="movs__main">
+    <p class="mono y">+ Biblioteca de movimentos</p>
+    <h1 class="movs__titulo">Movimentos</h1>
+    <p class="movs__lead">Não sabe qual é o movimento do treino? Procure aqui e veja o vídeo explicando como fazer.</p>
+
+    <div class="movs__busca">
+      <input id="busca" type="search" placeholder="Buscar movimento (ex.: wall ball, KBS, burpee)" aria-label="Buscar movimento" autocomplete="off">
+    </div>
+    <nav class="movs__letras" id="letras" aria-label="Ir para a letra"></nav>
+
+    <p class="movs__status" id="status" role="status">Carregando…</p>
+    <div id="lista"></div>
+  </main>
+
+  <script src="/js/movimentos.js"></script>
+</body>
+</html>

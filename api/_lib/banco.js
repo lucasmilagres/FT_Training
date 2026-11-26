@@ -72,6 +72,17 @@ async function perfilPorEmail(email) {
   return (j && j[0]) || null;
 }
 
+// Pode entrar pelo código do e-mail: perfil ativo ou convite esperando (cadastrado pelo coach)
+async function temAcesso(email) {
+  if (!configurado()) return false;
+  const e = encodeURIComponent(String(email).toLowerCase());
+  const [perfil, convite] = await Promise.all([
+    rest('perfis?select=id&ativo=eq.true&email=eq.' + e + '&limit=1'),
+    rest('convites?select=email&email=eq.' + e + '&limit=1')
+  ]);
+  return !!((perfil && perfil[0]) || (convite && convite[0]));
+}
+
 // Treinos do aluno entre duas datas (AAAA-MM-DD), com o registro de "feito" de cada um
 function treinosDoAluno(alunoId, de, ate) {
   return rest('treinos?select=id,data,ordem,nome,modalidade,tipo,estrutura,observacoes,registros(concluido_em,duracao_min,distancia_km,esforco,comentario)'
@@ -82,5 +93,5 @@ function treinosDoAluno(alunoId, de, ate) {
 
 module.exports = {
   configurado, rest, rpc, ler, inserir, atualizar, apagar, upsert, um, comRegistro,
-  entrarComGoogle, perfilPorEmail, treinosDoAluno
+  entrarComGoogle, perfilPorEmail, temAcesso, treinosDoAluno
 };

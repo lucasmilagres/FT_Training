@@ -6,9 +6,11 @@
 //   GET  ?acao=semana&aluno=ID&semana=AAAA-MM-DD
 //   GET  ?acao=template&id=ID
 //   GET  ?acao=tv&semana=AAAA-MM-DD   (treinos da TV: planilha × versão da IA)
+//   GET  ?acao=movimentos              (vídeos dos movimentos; na 1ª vez importa a lista pronta)
 //   POST { acao: convidar | cancelar_convite | liberar | desativar | salvar_template |
 //          arquivar_template | agendar | remover_treino | copiar_semana |
-//          tv_ler | tv_aprovar | tv_descartar, ... }
+//          tv_ler | tv_aprovar | tv_descartar |
+//          salvar_movimento | apagar_movimento | importar_movimentos | envio_video, ... }
 const { sessaoEmail, emailsLiberados, json } = require('./_lib/sessao');
 const { hojeISO } = require('./_lib/planilha');
 const { dataOk, somaDias, segunda, diasEntre } = require('./_lib/datas');
@@ -17,6 +19,8 @@ const tvia = require('./_lib/tvia');
 const gemini = require('./_lib/gemini');
 const { treinosDaData } = require('./_lib/fonte');
 const push = require('./_lib/push');
+const movimentos = require('./_lib/movimentos');
+const { enviarEmail, emailConvite } = require('./_lib/email-codigo');
 
 const DIAS_CURTOS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 // "qua 25/11"
@@ -213,8 +217,13 @@ const acoes = {
     }
     await banco.apagar('convites', 'email=eq.' + q(email));
     const criado = await banco.inserir('convites', { email, nome, papel, coach_id: coachId, criado_por: eu.id });
+    // e-mail avisando que o acesso foi criado; se falhar, o cadastro continua valendo
+    let email_enviado = false;
+    try { email_enviado = await enviarEmail(email, emailConvite({ email, nome, coach: eu.nome, papel })); } catch (e) {
+      console.error('convite e-mail:', e.message);
+    }
     // sem linha de volta = a pessoa já tinha entrado antes e o convite liberou o acesso na hora
-    return { ok: true, liberado: criado.length === 0 };
+    return { ok: true, liberado: criado.length === 0, email_enviado };
   },
 
   async cancelar_convite(eu, b) {
@@ -317,8 +326,61 @@ const acoes = {
       });
     }
     return { ok: true, copiados: origem.length };
+  },
+
+  // ---------- movimentos (vídeos para os alunos) ----------
+  async salvar_movimento(eu, b) {
+    const nome = texto(b.nome, 80).replace(/\s+/g, ' ');
+    if (!nome) throw falha(400, 'Dê um nome ao movimento.');
+    const video = texto(b.video_url, 500);
+    if (!movimentos.videoOk(video)) throw falha(400, 'Use um link do YouTube ou envie o arquivo do vídeo.');
+    const campos = { nome, video_url: video || null, orientacoes: texto(b.orientacoes, 600) || null };
+    const mesmoNome = (await banco.ler('exercicios', 'select=id,nome')).filter((x) => x.nome.trim().toLowerCase() === nome.toLowerCase());
+    if (b.id) {
+      if (!uuidOk(b.id)) throw falha(400, 'Movimento inválido.');
+      if (mesmoNome.some((x) => x.id !== b.id)) throw falha(409, 'Já existe um movimento com esse nome.');
+      const antes = await banco.um('exercicios', 'select=video_url&id=eq.' + b.id);
+      if (!antes) throw falha(404, 'Movimento não encontrado.');
+      await banco.atualizar('exercicios', 'id=eq.' + b.id, campos);
+      if (antes.video_url && antes.video_url !== campos.video_url) await movimentos.apagarArquivo(antes.video_url);
+      return { ok: true };
+    }
+    if (mesmoNome.length) throw falha(409, 'Já existe um movimento com esse nome.');
+    const [novo] = await banco.inserir('exercicios', { ...campos, modalidade: 'outro', criado_por: eu.id });
+    return { ok: true, id: novo && novo.id };
+  },
+
+  async apagar_movimento(eu, b) {
+    if (!uuidOk(b.id)) throw falha(400, 'Movimento inválido.');
+    const [apagado] = await banco.apagar('exercicios', 'id=eq.' + b.id);
+    if (!apagado) throw falha(404, 'Movimento não encontrado.');
+    await movimentos.apagarArquivo(apagado.video_url);
+    return { ok: true };
+  },
+
+  async importar_movimentos(eu) {
+    return { ok: true, importados: await movimentos.importarProntos(eu.id) };
+  },
+
+  // link para o navegador enviar o arquivo de vídeo direto ao Storage
+  async envio_video(eu, b) {
+    return movimentos.linkDeEnvio(texto(b.tipo, 60), Number(b.tamanho));
   }
 };
+
+// Movimentos do painel. Na primeira vez (nenhum vídeo no banco) já coloca a lista pronta.
+async function listaMovimentos(eu) {
+  let linhas = await banco.ler('exercicios', 'select=id,nome,video_url,orientacoes');
+  let importados = 0;
+  if (!linhas.some((x) => x.video_url)) {
+    importados = await movimentos.importarProntos(eu.id);
+    if (importados) linhas = await banco.ler('exercicios', 'select=id,nome,video_url,orientacoes');
+  }
+  return {
+    movimentos: linhas.sort(movimentos.ordem).map((x) => ({ ...x, youtube: movimentos.idYouTube(x.video_url) })),
+    prontos: movimentos.PRONTOS.length, importados, limiteMb: movimentos.LIMITE_MB
+  };
+}
 
 module.exports = async function (req, res) {
   try {
@@ -330,6 +392,7 @@ module.exports = async function (req, res) {
       if (acao === 'semana') return json(res, 200, await semanaDoAluno(eu, p.get('aluno'), p.get('semana')));
       if (acao === 'template') return json(res, 200, await template(p.get('id')));
       if (acao === 'tv') return json(res, 200, await tvSemana(p.get('semana')));
+      if (acao === 'movimentos') return json(res, 200, await listaMovimentos(eu));
       return json(res, 400, { erro: 'Ação desconhecida.' });
     }
     if (req.method === 'POST') {

@@ -122,21 +122,25 @@ body::after {
 .so-coach { display: none !important; }
 .is-coach .so-coach { display: flex !important; }
 .nav__links .nav__treinos { color: var(--y); }
-.nav__burger { display: none; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line-2); position: relative; }
-.nav__burger span { position: absolute; left: 14px; right: 14px; height: 2px; background: var(--bone); transition: transform .35s var(--ease), top .35s; }
-.nav__burger span:first-child { top: 18px; }
-.nav__burger span:last-child { top: 26px; }
-.menu-open .nav__burger span:first-child { top: 22px; transform: rotate(45deg); }
-.menu-open .nav__burger span:last-child { top: 22px; transform: rotate(-45deg); }
+/* três listras: aparece também no computador (Movimentos, Sou aluno e Planilha ficam no menu) */
+.nav__burger { display: block; flex: none; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line-2); position: relative; transition: border-color .3s; }
+.nav__burger:hover { border-color: var(--y); }
+.nav__burger span { position: absolute; left: 14px; right: 14px; height: 2px; background: var(--bone); transition: transform .35s var(--ease), top .35s, opacity .2s; }
+.nav__burger span:nth-child(1) { top: 15px; }
+.nav__burger span:nth-child(2) { top: 21px; }
+.nav__burger span:nth-child(3) { top: 27px; }
+.menu-open .nav__burger span:nth-child(1) { top: 21px; transform: rotate(45deg); }
+.menu-open .nav__burger span:nth-child(2) { opacity: 0; }
+.menu-open .nav__burger span:nth-child(3) { top: 21px; transform: rotate(-45deg); }
 
 .menu {
   position: fixed; inset: 0; z-index: 90; background: var(--ink);
-  display: flex; flex-direction: column; justify-content: center; gap: 40px; padding: 100px var(--gutter) 40px;
+  display: flex; flex-direction: column; justify-content: safe center; gap: 32px; padding: 100px var(--gutter) 40px; overflow-y: auto;
   clip-path: inset(0 0 100% 0); transition: clip-path .6s var(--ease); visibility: hidden;
 }
 .menu-open .menu { clip-path: inset(0 0 0 0); visibility: visible; }
 .menu nav { display: flex; flex-direction: column; }
-.menu nav a { font-family: var(--f-display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: clamp(44px, 12vw, 80px); line-height: 1; padding: 6px 0; border-bottom: 1px solid var(--line); display: flex; align-items: baseline; gap: 14px; }
+.menu nav a { font-family: var(--f-display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: clamp(28px, min(12vw, 5.2vh), 80px); line-height: 1; padding: 6px 0; border-bottom: 1px solid var(--line); display: flex; align-items: baseline; gap: 14px; }
 .menu nav a small { font-family: var(--f-mono); font-style: normal; font-size: 12px; font-weight: 400; color: var(--y); }
 .menu .btn { align-self: flex-start; }
 
@@ -468,7 +472,6 @@ body::after {
 /* ---------- responsivo ---------- */
 @media (max-width: 1080px) {
   .nav__links { display: none; }
-  .nav__burger { display: block; }
   .nav__cta, .nav__coach { display: none; }
   .hero__inner { grid-template-columns: 1fr; }
   .hero__media { justify-self: start; max-width: 100%; }

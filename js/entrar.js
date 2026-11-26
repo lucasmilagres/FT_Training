@@ -1,4 +1,4 @@
-/* Login da área do coach: e-mail → código de 8 dígitos → sessão de 1 ano. */
+/* Login de alunos e equipe: Google, ou e-mail → código de 8 dígitos → sessão de 1 ano. */
 (function () {
   var $ = function (s) { return document.querySelector(s); };
   var passoEmail = $('#passo-email');
@@ -7,8 +7,16 @@
   var campoCodigo = $('#codigo');
 
   // só volta para páginas do próprio site
-  var volta = new URLSearchParams(location.search).get('volta') || '/treinos';
-  if (!/^\/(?!\/)/.test(volta)) volta = '/treinos';
+  var pedida = new URLSearchParams(location.search).get('volta') || '';
+  if (!/^\/(?!\/)/.test(pedida)) pedida = '';
+  var volta = pedida || '/treinos';
+
+  // Depois do código: equipe da TV volta para onde estava; aluno vai para a área dele
+  // (ou para uma página aberta a alunos, se veio de lá)
+  function destino(j) {
+    if (j.destino === '/treinos') return volta;
+    return /^\/(aluno|movimentos)\b/.test(pedida) ? pedida : (j.destino || '/aluno');
+  }
 
   try { campoEmail.value = localStorage.getItem('ft-coach-email') || ''; } catch (e) {}
 
@@ -73,8 +81,8 @@
     erro(form, '');
     if (codigo.length !== 8) { erro(form, 'O código tem 8 dígitos.'); return; }
     enviando(form, true);
-    post('/api/auth/entrar', { codigo: codigo }).then(function () {
-      location.replace(volta);
+    post('/api/auth/entrar', { codigo: codigo }).then(function (j) {
+      location.replace(destino(j));
     }).catch(function (e) {
       erro(form, e.message);
       enviando(form, false);

@@ -200,7 +200,9 @@
     if (admin()) { dados.papel = fConv.papel.value; dados.coach_id = fConv.coach_id.value; }
     ocupado(b, true);
     acao('convidar', dados).then(function (j) {
-      msg(j.liberado ? 'Acesso liberado: a pessoa já tinha entrado antes e já pode usar.' : 'Convite criado. Avise a pessoa para entrar em fttraining.com.br/entrar com essa conta Google.', 'ok');
+      var envio = j.email_enviado ? ' Mandamos um e-mail para ' + dados.email + ' com o link para entrar.'
+        : ' Não consegui mandar o e-mail: avise a pessoa para entrar em fttraining.com.br/entrar com ' + dados.email + '.';
+      msg((j.liberado ? 'Acesso liberado: a pessoa já tinha entrado antes e já pode usar.' : 'Cadastro criado.') + envio, j.email_enviado ? 'ok' : 'erro');
       fConv.reset();
       $('.so-aluno', fConv).hidden = false;
       if (admin()) fConv.coach_id.value = R.eu.id;
@@ -581,6 +583,126 @@
       .catch(erro).then(function () { ocupado(b, false); });
   });
 
+  // ---------- movimentos (vídeos para os alunos) ----------
+  var M = null; // { movimentos, limiteMb }
+  var fM = $('#f-movimento');
+
+  function abrirMovimentos() {
+    if (!M) { var ul = $('#movimentos'); ul.textContent = ''; ul.appendChild(el('li', 'linhas__vazio', 'Carregando…')); }
+    return api('GET', null, '?acao=movimentos').then(function (j) {
+      M = j;
+      $('#m-limite').textContent = '(até ' + j.limiteMb + ' MB)';
+      if (j.importados) msg(j.importados + ' movimentos com vídeo já foram colocados. Confira, troque ou apague o que quiser.', 'ok');
+      desenharMovimentos();
+    }).catch(erro);
+  }
+
+  function tipoVideo(m) { return !m.video_url ? 'sem vídeo' : m.youtube ? 'YouTube' : 'vídeo enviado'; }
+
+  function desenharMovimentos() {
+    var ul = $('#movimentos');
+    var busca = $('#m-busca').value.trim().toLowerCase();
+    var lista = M.movimentos.filter(function (m) { return !busca || m.nome.toLowerCase().indexOf(busca) >= 0; });
+    $('#n-movimentos').textContent = M.movimentos.length;
+    ul.textContent = '';
+    if (!lista.length) { ul.appendChild(el('li', 'linhas__vazio', busca ? 'Nenhum movimento com esse nome.' : 'Nenhum movimento ainda.')); return; }
+    lista.forEach(function (m) {
+      var li = el('li', 'linha');
+      var info = el('div', 'linha__info');
+      info.appendChild(el('b', null, m.nome));
+      info.appendChild(el('span', null, tipoVideo(m) + (m.orientacoes ? ' · ' + m.orientacoes : '')));
+      li.appendChild(info);
+      var ac = el('div', 'linha__acoes');
+      if (m.video_url) {
+        var ver = el('a', 'link mono', 'Ver');
+        ver.href = m.video_url; ver.target = '_blank'; ver.rel = 'noopener';
+        ac.appendChild(ver);
+      }
+      var ed = el('button', 'link mono', 'Editar');
+      ed.type = 'button';
+      ed.addEventListener('click', function () { editarMovimento(m); });
+      var ap = el('button', 'link mono', 'Apagar');
+      ap.type = 'button';
+      ap.addEventListener('click', function () {
+        if (!confirm('Apagar "' + m.nome + '"? ' + (m.video_url && !m.youtube ? 'O vídeo enviado também é apagado.' : ''))) return;
+        ocupado(ap, true);
+        acao('apagar_movimento', { id: m.id }).then(function () { msg('Movimento apagado.', 'ok'); limparMovimento(); return abrirMovimentos(); })
+          .catch(erro).then(function () { ocupado(ap, false); });
+      });
+      ac.appendChild(ed); ac.appendChild(ap);
+      li.appendChild(ac);
+      ul.appendChild(li);
+    });
+  }
+
+  function editarMovimento(m) {
+    fM.id.value = m.id; fM.nome.value = m.nome;
+    fM.video_url.value = m.video_url || ''; fM.orientacoes.value = m.orientacoes || '';
+    fM.arquivo.value = '';
+    $('#m-titulo').textContent = 'Editar movimento';
+    $('#m-cancelar').hidden = false;
+    fM.nome.focus();
+    fM.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function limparMovimento() {
+    fM.reset(); fM.id.value = '';
+    $('#m-titulo').textContent = 'Novo movimento';
+    $('#m-cancelar').hidden = true;
+    $('#m-progresso').hidden = true;
+  }
+
+  // Envia o arquivo direto para o Storage (link assinado), mostrando o progresso
+  function enviarArquivo(arquivo) {
+    return acao('envio_video', { tipo: arquivo.type, tamanho: arquivo.size }).then(function (j) {
+      return new Promise(function (ok, falhou) {
+        var p = $('#m-progresso');
+        p.hidden = false; p.textContent = 'Enviando vídeo… 0%';
+        var corpo = new FormData();
+        corpo.append('cacheControl', '3600');
+        corpo.append('', arquivo);
+        var x = new XMLHttpRequest();
+        x.open('PUT', j.envio);
+        x.upload.onprogress = function (e) { if (e.lengthComputable) p.textContent = 'Enviando vídeo… ' + Math.round(e.loaded / e.total * 100) + '%'; };
+        x.onload = function () {
+          if (x.status >= 200 && x.status < 300) { p.textContent = 'Vídeo enviado.'; ok(j.publico); }
+          else falhou(new Error('O envio do vídeo falhou (' + x.status + '). Tente de novo ou use um link do YouTube.'));
+        };
+        x.onerror = function () { falhou(new Error('O envio do vídeo falhou. Confira a internet e tente de novo.')); };
+        x.send(corpo);
+      });
+    });
+  }
+
+  fM.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var b = $('button[type=submit]', fM);
+    var arquivo = fM.arquivo.files && fM.arquivo.files[0];
+    if (!fM.nome.value.trim()) { msg('Dê um nome ao movimento.', 'erro'); fM.nome.focus(); return; }
+    if (arquivo && M && arquivo.size > M.limiteMb * 1024 * 1024) { msg('O vídeo pode ter no máximo ' + M.limiteMb + ' MB. Para vídeos maiores, suba no YouTube e cole o link.', 'erro'); return; }
+    ocupado(b, true);
+    var video = arquivo ? enviarArquivo(arquivo) : Promise.resolve(fM.video_url.value.trim());
+    video.then(function (url) {
+      return acao('salvar_movimento', { id: fM.id.value || undefined, nome: fM.nome.value, video_url: url, orientacoes: fM.orientacoes.value });
+    }).then(function () {
+      msg('Movimento salvo. Já aparece na página Movimentos.', 'ok');
+      limparMovimento();
+      return abrirMovimentos();
+    }).catch(erro).then(function () { ocupado(b, false); });
+  });
+  // link e arquivo: um ou outro
+  fM.arquivo.addEventListener('change', function () { if (fM.arquivo.files.length) fM.video_url.value = ''; });
+  fM.video_url.addEventListener('input', function () { if (fM.video_url.value) fM.arquivo.value = ''; });
+  $('#m-cancelar').addEventListener('click', limparMovimento);
+  $('#m-busca').addEventListener('input', function () { if (M) desenharMovimentos(); });
+  $('#m-importar').addEventListener('click', function () {
+    var b = this;
+    ocupado(b, true);
+    acao('importar_movimentos').then(function (j) {
+      msg(j.importados ? j.importados + ' movimentos adicionados.' : 'Todos os vídeos prontos já estão cadastrados.', 'ok');
+      return abrirMovimentos();
+    }).catch(erro).then(function () { ocupado(b, false); });
+  });
+
   // ---------- rotas ----------
   function mostrar(vista, aba) {
     $$('.vista').forEach(function (v) { v.hidden = v.id !== 'v-' + vista; });
@@ -595,6 +717,7 @@
     else if ((m = h.match(/^#template\/(.+)$/))) { mostrar('editor', 'templates'); abrirEditor(m[1]); }
     else if (h === '#templates') { mostrar('templates', 'templates'); desenharTemplates(); }
     else if (h === '#tv') { mostrar('tv', 'tv'); abrirTV(); }
+    else if (h === '#movimentos') { mostrar('movimentos', 'movimentos'); abrirMovimentos(); }
     else { mostrar('alunos', 'alunos'); desenharAlunos(); }
     window.scrollTo(0, 0);
   }
