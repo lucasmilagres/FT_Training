@@ -164,8 +164,49 @@ h1, h2, h3, p { margin: 0; }
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   transition: opacity .4s var(--ease), transform .4s var(--ease);
 }
+.tv__ctl { align-items: center; }
 .tv__ctl .btn { padding: 12px 18px; font-size: 12px; }
 .tv.ocioso .tv__ctl { opacity: 0; transform: translate(-50%, 20px); pointer-events: none; }
+.tv__ctl :focus-visible { outline: 2px solid var(--y); outline-offset: 2px; }
+
+/* ‹ Hoje › juntos, parecendo um controle só */
+.tv__dias { display: flex; border: 1px solid var(--line-2); border-radius: 999px; }
+.tv__dias .btn { border: 0; border-radius: 0; }
+.tv__dias .btn:first-child { border-radius: 999px 0 0 999px; }
+.tv__dias .btn:last-child { border-radius: 0 999px 999px 0; }
+.tv__dias #anterior, .tv__dias #proximo { font-size: 18px; padding: 9px 16px; line-height: 1; }
+
+/* botão do menu: as mesmas três listras grafite do site */
+.tv__menu-btn {
+  display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px 10px 12px; margin-left: 4px;
+  border-radius: 999px; border: 1px solid #2c2c2c; background: transparent; cursor: pointer;
+  font-family: var(--f-mono); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  color: #9a968e; transition: border-color .3s, color .3s;
+}
+.tv__listras { display: grid; gap: 4px; width: 16px; }
+.tv__listras i { display: block; height: 2px; border-radius: 2px; background: #5c5a56; transition: background .3s; }
+.tv__menu-btn:hover, .menu-aberto .tv__menu-btn { border-color: #4a4844; color: var(--bone); }
+.tv__menu-btn:hover i, .menu-aberto .tv__menu-btn i { background: #9a968e; }
+
+/* menu: abre acima da barra, cada opção diz o que faz */
+.tv__menu {
+  position: absolute; right: 0; bottom: calc(100% + 10px); width: min(380px, 92vw);
+  display: grid; padding: 8px; border-radius: 18px;
+  background: rgba(18, 18, 18, .97); border: 1px solid var(--line-2);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .8);
+}
+.tv__menu[hidden] { display: none; }
+.tv__op {
+  display: grid; gap: 3px; padding: 13px 16px; border-radius: 12px; border: 0; background: transparent;
+  text-align: left; text-decoration: none; color: var(--bone); cursor: pointer; font: inherit;
+}
+.tv__op strong { font-family: var(--f-display); font-style: italic; font-weight: 800; font-size: 21px; line-height: 1.1; text-transform: uppercase; letter-spacing: .01em; }
+.tv__op span { font-size: 13px; line-height: 1.35; color: var(--mute); }
+.tv__op em { font-style: normal; font-family: var(--f-mono); font-size: 12px; color: var(--y); margin-left: 6px; vertical-align: 2px; }
+.tv__op:hover, .tv__op:focus-visible { background: var(--char); outline: 0; }
+.tv__op:hover strong, .tv__op:focus-visible strong { color: var(--y); }
+.tv__op--sair { margin-top: 6px; border-top: 1px solid var(--line); border-radius: 0 0 12px 12px; padding-top: 15px; }
+.tv__op--sair strong { color: var(--red); font-size: 17px; }
 
 /* celular / tela em pé: rola normalmente, um bloco por linha.
    Tela deitada é tratada como TV em qualquer tamanho (Smart TVs costumam informar 854 ou 960 px de largura). */

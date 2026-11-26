@@ -2,7 +2,7 @@
    Rede primeiro: com internet, sempre a versão mais nova; sem internet, a última que abriu.
    Só cuida das páginas do app e de GET /api/aluno e /api/coach; o resto do site passa direto.
    Ao sair da conta, a página pede para apagar os dados salvos (mensagem "limpar"). */
-const VERSAO = 'ft-app-v4';
+const VERSAO = 'ft-app-v5';
 const API = 'ft-app-api';
 
 const SHELL = [

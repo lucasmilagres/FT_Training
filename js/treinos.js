@@ -169,7 +169,8 @@
   var botaoMargem = $('#margem');
   function aplicarMargem(m) {
     document.body.style.setProperty('--m', String(m));
-    if (botaoMargem) botaoMargem.textContent = 'Margem ' + m + '%';
+    var valor = $('#margem-valor');
+    if (valor) valor.textContent = m + '%';
     setTimeout(ajustar, 50);
   }
   var margem = parseInt(new URLSearchParams(location.search).get('margem'), 10);
@@ -276,8 +277,33 @@
     setTimeout(ajustar, 200);
   });
 
-  // setas do controle remoto / teclado
+  // ---------- menu (o que não é de todo dia na TV) ----------
+  var menuBtn = $('#menu-btn'), menu = $('#tv-menu');
+  var opcoes = function () { return Array.prototype.slice.call(menu.querySelectorAll('.tv__op')); };
+  var menuAberto = function () { return !menu.hidden; };
+  function abrirMenu(aberto) {
+    menu.hidden = !aberto;
+    menuBtn.setAttribute('aria-expanded', String(aberto));
+    document.body.classList.toggle('menu-aberto', aberto);
+    if (aberto) opcoes()[0].focus();
+    else if (menu.contains(document.activeElement)) menuBtn.focus();
+    acordar();
+  }
+  menuBtn.addEventListener('click', function (e) { e.stopPropagation(); abrirMenu(!menuAberto()); });
+  menu.addEventListener('click', function (e) { e.stopPropagation(); });
+  document.addEventListener('click', function () { if (menuAberto()) abrirMenu(false); });
+
+  // setas do controle remoto / teclado. Com o menu aberto, as setas andam pelas opções e "voltar" fecha.
+  var VOLTAR = { Escape: 1, Backspace: 1, GoBack: 1, BrowserBack: 1 };
   document.addEventListener('keydown', function (e) {
+    if (menuAberto()) {
+      var ops = opcoes(), i = ops.indexOf(document.activeElement);
+      if (VOLTAR[e.key] || e.keyCode === 10009 || e.keyCode === 461) { e.preventDefault(); abrirMenu(false); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); ops[(i + 1) % ops.length].focus(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); ops[(i - 1 + ops.length) % ops.length].focus(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') e.preventDefault();
+      return;
+    }
     if (e.key === 'ArrowLeft') irPara(somaDias(base(), -1));
     else if (e.key === 'ArrowRight') irPara(somaDias(base(), 1));
     else if (e.key === 'f' || e.key === 'F') alternarTelaCheia();
@@ -288,7 +314,11 @@
   function acordar() {
     document.body.classList.remove('ocioso');
     clearTimeout(timerOcioso);
-    timerOcioso = setTimeout(function () { document.body.classList.add('ocioso'); }, 4000);
+    // com o menu aberto a barra fica; parado por 20 s, o menu fecha e a barra some
+    timerOcioso = setTimeout(function () {
+      if (menuAberto()) abrirMenu(false);
+      document.body.classList.add('ocioso');
+    }, menuAberto() ? 20000 : 4000);
   }
   ['mousemove', 'keydown', 'touchstart', 'click'].forEach(function (ev) { document.addEventListener(ev, acordar, { passive: true }); });
   acordar();

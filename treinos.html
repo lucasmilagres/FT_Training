@@ -31,16 +31,40 @@
   <div class="tv__base" aria-hidden="true"></div>
   <p class="tv__status mono" id="status"></p>
 
+  <!-- Na barra fica só o que se usa na TV; o resto vai para o menu, com o nome do que cada opção faz -->
   <nav class="tv__ctl" aria-label="Controles">
-    <button class="btn btn--ghost" id="anterior" title="Dia anterior (seta ←)">‹</button>
-    <button class="btn btn--ghost" id="hoje">Hoje</button>
-    <button class="btn btn--ghost" id="proximo" title="Próximo dia (seta →)">›</button>
+    <div class="tv__dias" role="group" aria-label="Trocar o dia">
+      <button class="btn btn--ghost" id="anterior" title="Dia anterior (seta ←)" aria-label="Dia anterior">‹</button>
+      <button class="btn btn--ghost" id="hoje">Hoje</button>
+      <button class="btn btn--ghost" id="proximo" title="Próximo dia (seta →)" aria-label="Próximo dia">›</button>
+    </div>
     <button class="btn btn--yellow" id="tela-cheia">Tela cheia</button>
-    <button class="btn btn--ghost" id="margem" title="Afasta o treino das bordas, para TVs que cortam a imagem">Margem 0%</button>
-    <a class="btn btn--ghost" href="/?site">Site</a>
-    <a class="btn btn--ghost" href="/planilha">Planilha</a>
-    <a class="btn btn--ghost" href="/coach">Painel</a>
-    <button class="btn btn--ghost" id="sair">Sair</button>
+    <button class="tv__menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="tv-menu">
+      <span class="tv__listras" aria-hidden="true"><i></i><i></i><i></i></span>Menu
+    </button>
+
+    <div class="tv__menu" id="tv-menu" hidden>
+      <a class="tv__op" href="/coach">
+        <strong>Alunos e treinos</strong>
+        <span>Cadastrar alunos e montar os treinos</span>
+      </a>
+      <a class="tv__op" href="/planilha">
+        <strong>Planilha da TV</strong>
+        <span>Ligar ou trocar a planilha do Google que aparece aqui</span>
+      </a>
+      <button class="tv__op" id="margem" type="button">
+        <strong>Ajustar bordas da TV <em id="margem-valor">0%</em></strong>
+        <span>Use se a TV corta o treino nas beiradas. Cada toque afasta mais</span>
+      </button>
+      <a class="tv__op" href="/?site">
+        <strong>Ver o site</strong>
+        <span>Página da FT Training</span>
+      </a>
+      <button class="tv__op tv__op--sair" id="sair" type="button">
+        <strong>Sair da conta</strong>
+        <span>A TV volta para a tela de login</span>
+      </button>
+    </div>
   </nav>
 
   <script src="/js/treinos.js"></script>
