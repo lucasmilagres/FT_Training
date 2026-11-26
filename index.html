@@ -36,6 +36,8 @@
   <script src="js/analytics.js"></script>
   <!-- coach logado: mostra a aba Treinos (o acesso de verdade é conferido em /api/treinos) -->
   <script>if (/(^|;\s*)ft_coach=1/.test(document.cookie)) document.documentElement.classList.add('is-coach');</script>
+  <!-- TV (navegador de Smart TV, Android TV, Fire TV...) com o coach logado: vai direto para os treinos; /?site mostra o site -->
+  <script>if (/(^|;\s*)ft_coach=1/.test(document.cookie) && /SMART-?TV|SmartTV|Tizen|Web0S|webOS|NetCast|HbbTV|BRAVIA|Android ?TV|GoogleTV|\bAFT[A-Z]|CrKey|Roku|AppleTV|Viera|VIDAA|Opera TV|\bTV\b/i.test(navigator.userAgent) && !/[?&]site\b/.test(location.search)) location.replace('/treinos');</script>
 
   <!-- LD:START -->
   <script type="application/ld+json">
